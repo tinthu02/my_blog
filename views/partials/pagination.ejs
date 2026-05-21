@@ -1,0 +1,133 @@
+<% if (totalPages > 1) { %>
+<%
+  const prevHref = currentPage === 2 ? '/' : `/page/${currentPage - 1}`;
+  const nextHref = `/page/${currentPage + 1}`;
+
+  let startPage = Math.max(1, currentPage - 2);
+  let endPage   = Math.min(totalPages, currentPage + 2);
+
+  // Luôn hiển thị đủ 5 số nếu có thể
+  if (endPage - startPage < 4) {
+    if (startPage === 1) endPage = Math.min(totalPages, startPage + 4);
+    else startPage = Math.max(1, endPage - 4);
+  }
+%>
+
+<style>
+  .pagination-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    margin: 2rem 0;
+    flex-wrap: wrap;
+  }
+
+  .page-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 38px;
+    height: 38px;
+    padding: 0 10px;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+    background: #fff;
+    color: #495057;
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.1s;
+    user-select: none;
+  }
+
+  .page-btn:hover {
+    background: #f1f3f5;
+    border-color: #adb5bd;
+    color: #212529;
+    transform: translateY(-1px);
+  }
+
+  .page-btn.active {
+    background: #0d6efd;
+    border-color: #0d6efd;
+    color: #fff;
+    font-weight: 600;
+    pointer-events: none;
+  }
+
+  .page-btn.disabled {
+    opacity: 0.4;
+    pointer-events: none;
+    cursor: default;
+  }
+
+  .page-btn.ellipsis {
+    border-color: transparent;
+    background: transparent;
+    pointer-events: none;
+    color: #adb5bd;
+    letter-spacing: 1px;
+  }
+
+  .page-info {
+    font-size: 0.8rem;
+    color: #6c757d;
+    text-align: center;
+    margin-top: 4px;
+  }
+</style>
+
+<div>
+  <div class="pagination-wrapper" role="navigation" aria-label="Phân trang">
+
+    <!-- Nút đầu trang -->
+    <% if (currentPage > 1) { %>
+      <a class="page-btn" href="/" title="Trang đầu" aria-label="Trang đầu">«</a>
+      <a class="page-btn" href="<%= prevHref %>" aria-label="Trang trước">‹</a>
+    <% } else { %>
+      <span class="page-btn disabled">«</span>
+      <span class="page-btn disabled">‹</span>
+    <% } %>
+
+    <!-- Trang 1 + dấu ... nếu cần -->
+    <% if (startPage > 1) { %>
+      <a class="page-btn" href="/">1</a>
+      <% if (startPage > 2) { %>
+        <span class="page-btn ellipsis">···</span>
+      <% } %>
+    <% } %>
+
+    <!-- Các số trang -->
+    <% for (let p = startPage; p <= endPage; p++) { %>
+      <% if (p === currentPage) { %>
+        <span class="page-btn active" aria-current="page"><%= p %></span>
+      <% } else { %>
+        <a class="page-btn" href="<%= p === 1 ? '/' : `/page/${p}` %>"><%= p %></a>
+      <% } %>
+    <% } %>
+
+    <!-- Dấu ... + trang cuối nếu cần -->
+    <% if (endPage < totalPages) { %>
+      <% if (endPage < totalPages - 1) { %>
+        <span class="page-btn ellipsis">···</span>
+      <% } %>
+      <a class="page-btn" href="/page/<%= totalPages %>"><%= totalPages %></a>
+    <% } %>
+
+    <!-- Nút cuối trang -->
+    <% if (currentPage < totalPages) { %>
+      <a class="page-btn" href="<%= nextHref %>" aria-label="Trang sau">›</a>
+      <a class="page-btn" href="/page/<%= totalPages %>" title="Trang cuối" aria-label="Trang cuối">»</a>
+    <% } else { %>
+      <span class="page-btn disabled">›</span>
+      <span class="page-btn disabled">»</span>
+    <% } %>
+
+  </div>
+
+  <!-- Thông tin trang -->
+  <p class="page-info">Trang <strong><%= currentPage %></strong> / <strong><%= totalPages %></strong></p>
+</div>
+<% } %>

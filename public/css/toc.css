@@ -1,0 +1,107 @@
+/* ===== Table of Contents ===== */
+#toc-card {
+  border: 1px solid #e0e7ef;
+  border-radius: 10px;
+  background: #f8fafc;
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+}
+
+#toc-card .toc-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: #f1f5f9;
+  border-bottom: 1px solid #e0e7ef;
+  cursor: pointer;
+  user-select: none;
+}
+
+#toc-card .toc-header h5 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #334155;
+}
+
+#toc-card .toc-header .toc-toggle-icon {
+  margin-left: auto;
+  font-size: 0.75rem;
+  color: #94a3b8;
+  transition: transform 0.25s ease;
+}
+
+#toc-card.collapsed .toc-toggle-icon {
+  transform: rotate(-90deg);
+}
+
+#toc-card .toc-body {
+  padding: 12px 16px;
+  transition: max-height 0.3s ease, opacity 0.3s ease;
+  max-height: 600px;
+  opacity: 1;
+  overflow: hidden;
+}
+
+#toc-card.collapsed .toc-body {
+  max-height: 0;
+  opacity: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+/* List gốc */
+#toc > ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* List lồng (h3) */
+#toc ul ul {
+  margin: 2px 0 2px 16px;
+  padding: 0;
+  list-style: none;
+  border-left: 2px solid #e2e8f0;
+  padding-left: 12px;
+}
+
+#toc li {
+  margin: 2px 0;
+}
+
+#toc a {
+  display: block;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  color: #475569;
+  text-decoration: none;
+  transition: background 0.15s, color 0.15s, padding-left 0.15s;
+  line-height: 1.5;
+}
+
+#toc a:hover {
+  background: #e2e8f0;
+  color: #0d6efd;
+  padding-left: 12px;
+}
+
+/* Link đang active (đang đọc đến mục này) */
+#toc a.toc-active {
+  background: #dbeafe;
+  color: #1d4ed8;
+  font-weight: 600;
+}
+
+/* h3 nhỏ hơn h2 một chút */
+#toc ul ul a {
+  font-size: 0.82rem;
+  color: #64748b;
+}
+
+#toc ul ul a:hover,
+#toc ul ul a.toc-active {
+  color: #1d4ed8;
+}

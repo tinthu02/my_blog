@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kết quả tìm kiếm: "<%= query %>" | Blog</title>
+  <!-- Anti-flash: phải đứng trước mọi CSS -->
+  <script>
+    if (localStorage.getItem('theme') === 'dark') {
+      document.documentElement.classList.add('dark-early');
+    }
+  </script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/dark-mode.css">
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+      <a class="navbar-brand" href="/">My Blog</a>
+      <div class="collapse navbar-collapse">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="/">Trang chủ</a></li>
+          <li class="nav-item"><a class="nav-link" href="/admin">Admin</a></li>
+          <li class="nav-item">
+            <button id="dark-mode-toggle" class="btn btn-sm btn-outline-light ms-2 my-auto" style="padding: 4px 8px;">
+              <img id="dark-mode-icon" src="/images/idea.png" width="20" height="20" alt="Dark mode">
+            </button>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container mt-4">
+    <!-- Tiêu đề kết quả -->
+    <h2>Kết quả tìm kiếm: "<%= query %>"</h2>
+    <p class="text-muted">Tìm thấy <%= posts.length %> bài viết</p>
+    <hr>
+
+    <!-- Thanh tìm kiếm lại -->
+    <div class="row mb-4">
+      <div class="col-md-6 mx-auto">
+        <form action="/search" method="GET">
+          <div class="input-group">
+            <input type="text" name="q" class="form-control" value="<%= query %>" placeholder="Tìm kiếm bài viết...">
+            <button class="btn btn-outline-secondary" type="submit">Tìm</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Danh sách kết quả -->
+    <div class="row">
+      <% if (posts && posts.length > 0) { %>
+        <% posts.forEach(post => { %>
+          <div class="col-md-6 mb-4">
+            <div class="card h-100">
+              <div class="card-body">
+                <h5 class="card-title">
+                  <a href="/post/<%= post._id %>"><%= post.title %></a>
+                </h5>
+                <h6 class="card-subtitle mb-2 text-muted">
+                  <%= post.category %> | <%= post.createdAt.toLocaleDateString('vi-VN') %>
+                </h6>
+                <p class="card-text"><%= post.excerpt || post.content.substring(0, 200) + '...' %></p>
+                <a href="/post/<%= post._id %>" class="btn btn-primary">Đọc thêm</a>
+              </div>
+            </div>
+          </div>
+        <% }) %>
+      <% } else { %>
+        <div class="col-12">
+          <div class="alert alert-warning">
+            Không tìm thấy bài viết nào khớp với "<%= query %>".
+            <a href="/" class="alert-link">Quay về trang chủ</a>
+          </div>
+        </div>
+      <% } %>
+    </div>
+  </div>
+
+  <footer class="bg-dark text-light text-center py-3 mt-5">
+    <p>&copy; <%= new Date().getFullYear() %> My Blog. All rights reserved.</p>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <%- include('partials/back-to-top') %>
+  <script>
+    (function() {
+      const query = <%- JSON.stringify(query) %>;
+      if (!query) return;
+
+      // Hàm highlight
+      function highlightText(text, q) {
+        if (!q || !text) return text;
+        const escapedQuery = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp(`(${escapedQuery})`, 'gi');
+        return text.replace(regex, '<mark>$1</mark>');
+      }
+
+      // Xử lý tiêu đề bài viết
+      document.querySelectorAll('.card-title a').forEach(link => {
+        link.innerHTML = highlightText(link.innerHTML, query);
+      });
+
+      // Xử lý excerpt
+      document.querySelectorAll('.card-text').forEach(p => {
+        p.innerHTML = highlightText(p.innerHTML, query);
+      });
+    })();
+  </script>
+  <script src="/js/dark-mode.js"></script>
+</body>
+</html>

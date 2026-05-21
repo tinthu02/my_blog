@@ -1,0 +1,84 @@
+<!-- Nút Back to top -->
+<style>
+  #back-to-top {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    z-index: 1000;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(0, 123, 255, 0.45);
+
+    /* Ẩn mặc định với opacity + transform */
+    opacity: 0;
+    transform: translateY(16px) scale(0.85);
+    pointer-events: none;
+    transition: opacity 0.3s ease, transform 0.3s ease, background 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  #back-to-top.visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+  }
+
+  #back-to-top:hover {
+    background: #0056d6;
+    box-shadow: 0 6px 20px rgba(0, 123, 255, 0.6);
+    transform: translateY(-3px) scale(1.05);
+  }
+
+  #back-to-top:active {
+    transform: translateY(0) scale(0.95);
+    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.4);
+  }
+
+  /* Arrow SVG bên trong */
+  #back-to-top svg {
+    width: 20px;
+    height: 20px;
+    stroke: white;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    fill: none;
+    transition: transform 0.2s ease;
+  }
+
+  #back-to-top:hover svg {
+    transform: translateY(-2px);
+  }
+</style>
+
+<button id="back-to-top" title="Lên đầu trang" aria-label="Lên đầu trang">
+  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <polyline points="18 15 12 9 6 15"></polyline>
+  </svg>
+</button>
+
+<script>
+  (function() {
+    const btn = document.getElementById('back-to-top');
+    if (!btn) return;
+
+    window.addEventListener('scroll', function() {
+      if (window.scrollY > 300) {
+        btn.classList.add('visible');
+      } else {
+        btn.classList.remove('visible');
+      }
+    }, { passive: true });
+
+    btn.addEventListener('click', function() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  })();
+</script>

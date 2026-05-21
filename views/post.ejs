@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= post.title %> | Blog</title>
+  <!-- Anti-flash: phải đứng trước mọi CSS -->
+  <script>
+    if (localStorage.getItem('theme') === 'dark') {
+      document.documentElement.classList.add('dark-early');
+    }
+  </script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/toc.css">
+  <link rel="stylesheet" href="/css/dark-mode.css">
+  <style>
+    /* Layout 2 cột: TOC trái + bài viết phải */
+    .post-layout {
+      display: flex;
+      align-items: flex-start;
+      gap: 28px;
+    }
+
+    .post-layout-single .post-main {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .toc-sidebar {
+      width: 260px;
+      flex-shrink: 0;
+      position: sticky;
+      top: 20px;
+      max-height: calc(100vh - 40px);
+      overflow-y: auto;
+    }
+
+    .toc-sidebar::-webkit-scrollbar { width: 4px; }
+    .toc-sidebar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+
+    .post-main {
+      flex: 1;
+      min-width: 0; /* tránh overflow */
+    }
+
+    /* Ẩn sidebar trên mobile, TOC hiện inline */
+    @media (max-width: 900px) {
+      .post-layout {
+        flex-direction: column;
+      }
+      .toc-sidebar {
+        width: 100%;
+        position: static;
+      }
+    }
+    .related-scroll {
+      display: flex;
+      gap: 16px;
+      overflow-x: auto;
+      padding-bottom: 12px;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .related-scroll::-webkit-scrollbar {
+      height: 5px;
+    }
+    .related-scroll::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 10px;
+    }
+    .related-scroll::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 10px;
+    }
+    .related-scroll::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+
+    .related-card {
+      flex: 0 0 280px;
+      scroll-snap-align: start;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 16px;
+      background: #fff;
+      transition: box-shadow 0.2s, transform 0.2s;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .related-card:hover {
+      box-shadow: 0 4px 16px rgba(0,0,0,0.09);
+      transform: translateY(-2px);
+    }
+
+    .related-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #1d4ed8;
+      text-decoration: none;
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .related-title:hover {
+      text-decoration: underline;
+    }
+
+    .related-excerpt {
+      font-size: 0.82rem;
+      color: #64748b;
+      margin: 0;
+      flex: 1;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+      <a class="navbar-brand" href="/">My Blog</a>
+      <div class="collapse navbar-collapse">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="/">Trang chủ</a></li>
+          <li class="nav-item"><a class="nav-link" href="/admin">Admin</a></li>
+          <li class="nav-item">
+            <button id="dark-mode-toggle" class="btn btn-sm btn-outline-light ms-2 my-auto" style="padding: 4px 8px;">
+              <img id="dark-mode-icon" src="/images/idea.png" width="20" height="20" alt="Dark mode">
+            </button>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container mt-4">
+
+    <% if (/<h[23][\s>]/i.test(post.content)) { %>
+    <!-- Layout 2 cột khi có TOC -->
+    <div class="post-layout">
+
+      <!-- Sidebar TOC bên trái -->
+      <aside class="toc-sidebar">
+        <div id="toc-card">
+          <div class="toc-header" id="toc-toggle">
+            <img src="/images/book.png" width="18" height="18" alt="mục lục" style="flex-shrink:0;">
+            <h5>Mục lục</h5>
+            <span class="toc-toggle-icon">▼</span>
+          </div>
+          <div class="toc-body">
+            <nav id="toc"></nav>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Nội dung bài viết bên phải -->
+      <div class="post-main">
+    <% } else { %>
+    <!-- Layout 1 cột khi không có TOC -->
+    <div class="post-layout-single">
+      <div class="post-main">
+    <% } %>
+
+        <article>
+          <h1><%= post.title %></h1>
+          <p class="text-muted">
+            <%= post.category %> | <%= post.createdAt.toLocaleDateString('vi-VN') %> | <%= post.readingTime %> phút đọc
+          </p>
+          <hr>
+          <div id="post-content"><%- post.content %></div>
+        </article>
+
+        <hr>
+        <!-- Nút chia sẻ -->
+    <div class="share-buttons mb-4 d-flex align-items-center flex-wrap gap-2">
+      <span><strong>Chia sẻ:</strong></span>
+
+      <button class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1" id="copy-link-btn" title="Sao chép liên kết">
+        <img src="/images/link.png" width="18" height="18" alt="copy link">
+        Copy link
+      </button>
+
+      <a href="#" class="btn btn-outline-primary btn-sm d-flex align-items-center gap-1" id="share-facebook" target="_blank" rel="noopener">
+        <img src="/images/facebook.png" width="18" height="18" alt="Facebook">
+        Facebook
+      </a>
+
+      <a href="#" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1" id="share-twitter" target="_blank" rel="noopener">
+        <img src="/images/twitter.png" width="18" height="18" alt="X / Twitter">
+        X
+      </a>
+
+      <a href="#" class="btn btn-outline-info btn-sm d-flex align-items-center gap-1" id="share-zalo" target="_blank" rel="noopener">
+        <img src="/images/icons8-zalo-50.png" width="18" height="18" alt="Zalo">
+        Zalo
+      </a>
+    </div>
+
+    <% if (relatedPosts && relatedPosts.length > 0) { %>
+      <section class="related-posts my-5">
+        <h4>Bài viết liên quan</h4>
+        <div class="related-scroll">
+          <% relatedPosts.forEach(rp => { %>
+            <div class="related-card">
+              <a href="/post/<%= rp._id %>" class="related-title"><%= rp.title %></a>
+              <p class="related-excerpt"><%= rp.excerpt || rp.content.substring(0, 100) + '...' %></p>
+              <small class="text-muted"><%= rp.createdAt.toLocaleDateString('vi-VN') %> | <%= rp.readingTime || 1 %> phút đọc</small>
+            </div>
+          <% }) %>
+        </div>
+      </section>
+    <% } %>
+    <hr>
+  
+    <section>
+      <h3>Bình luận (<span id="comment-count"><%= comments ? comments.length : 0 %></span>)</h3>
+      
+      <!-- Danh sách bình luận -->
+      <div id="comments-list">
+        <% if (comments && comments.length > 0) { %>
+          <% comments.forEach(comment => { %>
+            <div class="card mb-2 comment-item">
+              <div class="card-body">
+                <h6 class="card-subtitle mb-2 text-muted">
+                  <%= comment.author %> - 
+                  <time datetime="<%= comment.createdAt.toISOString() %>">
+                    <%= comment.createdAt.toLocaleString('vi-VN') %>
+                  </time>
+                </h6>
+                <p class="card-text"><%= comment.content %></p>
+              </div>
+            </div>
+          <% }) %>
+        <% } else { %>
+          <p id="no-comments">Chưa có bình luận. Hãy là người đầu tiên!</p>
+        <% } %>
+      </div>
+
+      <!-- Form bình luận -->
+      <h5 class="mt-4">Để lại bình luận</h5>
+      <div id="comment-error" class="alert alert-danger d-none"></div>
+      <form id="comment-form" action="/post/<%= post._id %>/comment" method="POST">
+        <div class="mb-3">
+          <label for="author" class="form-label">Tên của bạn</label>
+          <input type="text" class="form-control" id="author" name="author" required>
+        </div>
+        <div class="mb-3">
+          <label for="content" class="form-label">Nội dung</label>
+          <textarea class="form-control" id="content" name="content" rows="3" required></textarea>
+        </div>
+        <button type="submit" id="submit-btn" class="btn btn-primary">Gửi bình luận</button>
+      </form>
+    </section>
+      </div><!-- /.post-main -->
+    </div><!-- /.post-layout or .post-layout-single -->
+  </div><!-- /.container -->
+
+  <footer class="bg-dark text-light text-center py-3 mt-5">
+    <p>&copy; <%= new Date().getFullYear() %> My Blog. All rights reserved.</p>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const commentForm = document.getElementById('comment-form');
+      const commentsList = document.getElementById('comments-list');
+      const commentError = document.getElementById('comment-error');
+      const submitBtn = document.getElementById('submit-btn');
+      const authorInput = document.getElementById('author');
+      const contentInput = document.getElementById('content');
+      const commentCountSpan = document.getElementById('comment-count');
+      const postId = '<%= post._id %>'; // Lấy post ID từ EJS
+
+      commentForm.addEventListener('submit', async function(e) {
+        e.preventDefault(); // Chặn submit mặc định
+
+        // Lấy dữ liệu
+        const author = authorInput.value.trim();
+        const content = contentInput.value.trim();
+
+        // Ẩn lỗi cũ
+        commentError.classList.add('d-none');
+
+        // Kiểm tra phía client (nhanh)
+        if (!author) {
+          showError('Vui lòng nhập tên của bạn');
+          return;
+        }
+        if (!content) {
+          showError('Vui lòng nhập nội dung bình luận');
+          return;
+        }
+
+        // Disable nút gửi để tránh double-click
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Đang gửi...';
+
+        try {
+          const response = await fetch(`/api/posts/${postId}/comments`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ author, content })
+          });
+
+          const data = await response.json();
+
+          if (!response.ok || !data.success) {
+            throw new Error(data.message || 'Lỗi không xác định');
+          }
+
+          // Thêm bình luận mới vào DOM
+          addCommentToDOM(data.comment);
+
+          // Xóa form
+          authorInput.value = '';
+          contentInput.value = '';
+
+          // Cập nhật số lượng bình luận
+          updateCommentCount();
+
+          // Ẩn thông báo "chưa có bình luận" nếu có
+          const noComments = document.getElementById('no-comments');
+          if (noComments) noComments.remove();
+
+        } catch (error) {
+          showError(error.message);
+        } finally {
+          // Khôi phục nút
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Gửi bình luận';
+        }
+      });
+
+      function addCommentToDOM(comment) {
+        const commentDiv = document.createElement('div');
+        commentDiv.className = 'card mb-2 comment-item';
+        
+        const date = new Date(comment.createdAt);
+        const formattedDate = date.toLocaleString('vi-VN');
+        
+        commentDiv.innerHTML = `
+          <div class="card-body">
+            <h6 class="card-subtitle mb-2 text-muted">
+              ${escapeHtml(comment.author)} - 
+              <time datetime="${date.toISOString()}">${formattedDate}</time>
+            </h6>
+            <p class="card-text">${escapeHtml(comment.content)}</p>
+          </div>
+        `;
+        
+        commentsList.appendChild(commentDiv);
+      }
+
+      function updateCommentCount() {
+        if (commentCountSpan) {
+          const currentCount = commentsList.querySelectorAll('.comment-item').length;
+          commentCountSpan.textContent = currentCount;
+        }
+      }
+
+      function showError(message) {
+        commentError.textContent = message;
+        commentError.classList.remove('d-none');
+        setTimeout(() => {
+          commentError.classList.add('d-none');
+        }, 5000);
+      }
+
+      // Hàm escape HTML để tránh XSS
+      function escapeHtml(text) {
+        const map = {
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#039;'
+        };
+        return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+      }
+    });
+  </script>
+  <script>
+    (function() {
+      const postUrl = window.location.href;
+      const postTitle = document.title;
+
+      // --- Copy link ---
+      const copyBtn = document.getElementById('copy-link-btn');
+      if (copyBtn) {
+        copyBtn.addEventListener('click', async () => {
+          try {
+            await navigator.clipboard.writeText(postUrl);
+            showTooltip(copyBtn, 'Đã copy link!');
+          } catch {
+            // Fallback cho trình duyệt cũ
+            const textarea = document.createElement('textarea');
+            textarea.value = postUrl;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            showTooltip(copyBtn, 'Đã copy link!');
+          }
+        });
+      }
+
+      // --- Facebook ---
+      const fbBtn = document.getElementById('share-facebook');
+      if (fbBtn) {
+        fbBtn.href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(postUrl)}`;
+      }
+
+      // --- Twitter / X ---
+      const twitterBtn = document.getElementById('share-twitter');
+      if (twitterBtn) {
+        // Dùng intent của Twitter
+        twitterBtn.href = `https://twitter.com/intent/tweet?url=${encodeURIComponent(postUrl)}&text=${encodeURIComponent(postTitle)}`;
+      }
+
+      // --- Zalo ---
+      const zaloBtn = document.getElementById('share-zalo');
+      if (zaloBtn) {
+        zaloBtn.href = `https://sp.zalo.me/share?u=${encodeURIComponent(postUrl)}`;
+      }
+
+      // Hiển thị tooltip nhỏ gần nút copy
+      function showTooltip(btn, message) {
+        // Xóa tooltip cũ nếu có
+        const existing = document.querySelector('.copy-tooltip');
+        if (existing) existing.remove();
+
+        const tooltip = document.createElement('span');
+        tooltip.className = 'copy-tooltip';
+        tooltip.textContent = message;
+        tooltip.style.cssText = `
+          position: absolute;
+          background: #333;
+          color: #fff;
+          padding: 4px 8px;
+          border-radius: 4px;
+          font-size: 12px;
+          margin-left: 8px;
+          white-space: nowrap;
+          z-index: 1000;
+          transition: opacity 0.3s;
+        `;
+        btn.style.position = 'relative';
+        btn.appendChild(tooltip);
+        setTimeout(() => tooltip.remove(), 2000);
+      }
+    })();
+  </script>
+  <%- include('partials/back-to-top') %>
+  <script>
+    (function() {
+      const content = document.getElementById('post-content');
+      const toc = document.getElementById('toc');
+      if (!content || !toc) return;
+
+      const headings = content.querySelectorAll('h2, h3');
+      if (headings.length === 0) {
+        toc.parentElement.style.display = 'none';
+        return;
+      }
+
+      const stack = [{ ul: document.createElement('ul'), level: 2 }];
+      toc.appendChild(stack[0].ul);
+
+      headings.forEach(heading => {
+        const level = parseInt(heading.tagName.substring(1));
+        const text = heading.textContent.trim();
+        const id = heading.id || text.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '');
+        heading.id = id;
+
+        const li = document.createElement('li');
+        const a = document.createElement('a');
+        a.href = `#${id}`;
+        a.textContent = text;
+        a.style.textDecoration = 'none';
+        li.appendChild(a);
+
+        // Xác định vị trí trong cây
+        if (level > stack[stack.length - 1].level) {
+          // Tạo cấp ul mới
+          const newUl = document.createElement('ul');
+          stack[stack.length - 1].ul.lastChild.appendChild(newUl);
+          stack.push({ ul: newUl, level: level });
+        } else if (level < stack[stack.length - 1].level) {
+          // Quay về cấp cha
+          while (stack.length > 1 && stack[stack.length - 1].level > level) {
+            stack.pop();
+          }
+        }
+
+        stack[stack.length - 1].ul.appendChild(li);
+      });
+
+      // Cuộn mượt khi click vào liên kết trong TOC
+      toc.addEventListener('click', function(e) {
+        if (e.target.tagName === 'A') {
+          e.preventDefault();
+          const targetId = e.target.getAttribute('href').substring(1);
+          const target = document.getElementById(targetId);
+          if (target) {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }
+      });
+      // Toggle ẩn/hiện TOC
+      const tocCard = document.getElementById('toc-card');
+      const tocToggle = document.getElementById('toc-toggle');
+      if (tocToggle && tocCard) {
+        tocToggle.addEventListener('click', () => {
+          tocCard.classList.toggle('collapsed');
+        });
+      }
+
+      // Highlight mục đang đọc
+      const headingList = Array.from(headings);
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          const id = entry.target.id;
+          const link = toc.querySelector(`a[href="#${id}"]`);
+          if (link) {
+            if (entry.isIntersecting) {
+              toc.querySelectorAll('a').forEach(a => a.classList.remove('toc-active'));
+              link.classList.add('toc-active');
+            }
+          }
+        });
+      }, { rootMargin: '0px 0px -70% 0px' });
+
+      headingList.forEach(h => observer.observe(h));
+    })();
+  </script>
+  <script src="/js/dark-mode.js"></script>
+</body>
+</html>

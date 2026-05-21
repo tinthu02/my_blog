@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blog - Trang chủ</title>
+  <!-- Anti-flash: phải đứng trước mọi CSS -->
+  <script>
+    if (localStorage.getItem('theme') === 'dark') {
+      document.documentElement.classList.add('dark-early');
+    }
+  </script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/dark-mode.css">
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+      <a class="navbar-brand" href="/">My Blog</a>
+      <div class="collapse navbar-collapse">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="/">Trang chủ</a></li>
+          <li class="nav-item"><a class="nav-link" href="/admin">Admin</a></li>
+          <li class="nav-item">
+            <button id="dark-mode-toggle" class="btn btn-sm btn-outline-light ms-2 my-auto" style="padding: 4px 8px;">
+              <img id="dark-mode-icon" src="/images/idea.png" width="20" height="20" alt="Dark mode">
+            </button>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container mt-4">
+    <% if (typeof category !== 'undefined' && category) { %>
+      <h2>Danh mục: <%= category %></h2>
+      <hr>
+    <% } else { %>
+      <h2>Bài viết mới nhất</h2>
+      <hr>
+    <% } %>
+    
+    <!-- Thanh tìm kiếm -->
+    <div class="row mb-4">
+      <div class="col-md-6 mx-auto position-relative">
+        <form action="/search" method="GET" id="search-form">
+          <div class="input-group">
+            <input type="text" id="search-input" name="q" class="form-control" placeholder="Tìm kiếm bài viết..." autocomplete="off">
+            <button class="btn btn-outline-secondary" type="submit">Tìm</button>
+          </div>
+        </form>
+        <!-- Dropdown kết quả gợi ý -->
+        <div id="search-results" class="list-group position-absolute w-100 shadow" style="display:none; z-index:1000; max-height:300px; overflow-y:auto;"></div>
+      </div>
+    </div>
+
+    <!-- Container chứa danh sách bài viết -->
+    <div id="posts-container" class="row">
+      <% if (posts && posts.length > 0) { %>
+        <% posts.forEach(post => { %>
+          <div class="col-md-6 mb-4 post-item">
+            <div class="card h-100">
+              <div class="card-body">
+                <h5 class="card-title"><a href="/post/<%= post._id %>"><%= post.title %></a></h5>
+                <h6 class="card-subtitle mb-2 text-muted">
+                  <%= post.category %> | <%= post.createdAt.toLocaleDateString('vi-VN') %>
+                  <% if (post.readingTime) { %> · <%= post.readingTime %> phút đọc<% } %>
+                </h6>
+                <p class="card-text"><%= post.excerpt || post.content.substring(0, 200) + '...' %></p>
+                <a href="/post/<%= post._id %>" class="btn btn-primary">Đọc thêm</a>
+              </div>
+            </div>
+          </div>
+        <% }) %>
+      <% } else { %>
+        <p>Chưa có bài viết nào.</p>
+      <% } %>
+    </div>
+
+    <!-- Phân trang -->
+    <%- include('partials/pagination') %>
+  </div>
+
+  <footer class="bg-dark text-light py-4 mt-5">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6 mb-3 mb-md-0">
+          <h5>Đăng ký nhận tin</h5>
+          <p class="small">Nhận thông báo về bài viết mới nhất.</p>
+          <form id="subscribe-form" class="row g-2">
+            <div class="col-8">
+              <input type="email" id="subscribe-email" class="form-control" placeholder="Email của bạn" required>
+            </div>
+            <div class="col-4">
+              <button type="submit" id="subscribe-btn" class="btn btn-primary w-100">Đăng ký</button>
+            </div>
+          </form>
+          <div id="subscribe-message" class="mt-2"></div>
+        </div>
+        <div class="col-md-6 text-md-end">
+          <p class="mb-0">&copy; <%= new Date().getFullYear() %> My Blog. All rights reserved.</p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    (function() {
+      const searchInput = document.getElementById('search-input');
+      const searchResults = document.getElementById('search-results');
+      let debounceTimer;
+
+      if (!searchInput || !searchResults) return;
+
+      searchInput.addEventListener('input', function() {
+        clearTimeout(debounceTimer);
+        const query = this.value.trim();
+
+        if (query.length < 2) {
+          searchResults.style.display = 'none';
+          return;
+        }
+
+        debounceTimer = setTimeout(async () => {
+          try {
+            const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+            const data = await response.json();
+            if (!data.success) throw new Error('Lỗi');
+
+            renderResults(data.results, query); // Truyền query để highlight
+          } catch (err) {
+            console.error(err);
+            searchResults.style.display = 'none';
+          }
+        }, 300);
+      });
+
+      // Cập nhật hàm renderResults
+      function renderResults(posts, query) {
+        searchResults.innerHTML = '';
+        if (posts.length === 0) {
+          searchResults.innerHTML = '<div class="list-group-item">Không tìm thấy bài viết</div>';
+          searchResults.style.display = 'block';
+          return;
+        }
+
+        posts.forEach(post => {
+          const item = document.createElement('a');
+          item.href = `/post/${post._id}`;
+          item.className = 'list-group-item list-group-item-action';
+          // Highlight trong tiêu đề và excerpt
+          const title = highlightText(post.title, query);
+          const excerpt = highlightText(post.excerpt || (post.content ? post.content.substring(0, 100) + '...' : ''), query);
+          item.innerHTML = `
+            <div class="fw-bold">${title}</div>
+            <small class="text-muted">${excerpt}</small>
+          `;
+          searchResults.appendChild(item);
+        });
+        searchResults.style.display = 'block';
+      }
+
+      // Hàm highlight: wrap từ khóa trong <mark>, giữ nguyên hoa thường
+      function highlightText(text, query) {
+        if (!query || !text) return escapeHtml(text);
+        const escapedText = escapeHtml(text);
+        const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // escape regex
+        const regex = new RegExp(`(${escapedQuery})`, 'gi');
+        return escapedText.replace(regex, '<mark>$1</mark>');
+      }
+
+      // Ẩn dropdown khi click ra ngoài
+      document.addEventListener('click', function(e) {
+        if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+          searchResults.style.display = 'none';
+        }
+      });
+
+      // Khi focus lại vào input, nếu đã có kết quả thì hiển thị lại
+      searchInput.addEventListener('focus', function() {
+        if (this.value.trim().length >= 2 && searchResults.children.length > 0) {
+          searchResults.style.display = 'block';
+        }
+      });
+
+      function escapeHtml(text) {
+        const map = {
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#039;'
+        };
+        return String(text).replace(/[&<>"']/g, m => map[m]);
+      }
+    })();
+  </script>
+  <script>
+    (function() {
+      const subscribeForm = document.getElementById('subscribe-form');
+      const emailInput = document.getElementById('subscribe-email');
+      const subscribeBtn = document.getElementById('subscribe-btn');
+      const messageDiv = document.getElementById('subscribe-message');
+
+      if (!subscribeForm || !emailInput || !subscribeBtn || !messageDiv) return;
+
+      subscribeForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const email = emailInput.value.trim();
+        messageDiv.innerHTML = '';
+
+        if (!email) {
+          showMessage('Vui lòng nhập email', 'text-warning');
+          return;
+        }
+
+        subscribeBtn.disabled = true;
+        subscribeBtn.textContent = 'Đang gửi...';
+
+        try {
+          const response = await fetch('/api/subscribe', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+          });
+          const data = await response.json();
+          if (!response.ok || !data.success) throw new Error(data.message);
+          showMessage(data.message, 'text-success');
+          emailInput.value = '';
+        } catch (error) {
+          showMessage(error.message, 'text-danger');
+        } finally {
+          subscribeBtn.disabled = false;
+          subscribeBtn.textContent = 'Đăng ký';
+        }
+      });
+
+      function showMessage(msg, className) {
+        messageDiv.innerHTML = `<span class="${className}">${escapeHtml(msg)}</span>`;
+        setTimeout(() => { if (messageDiv) messageDiv.innerHTML = ''; }, 5000);
+      }
+
+      function escapeHtml(text) {
+        const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+        return String(text).replace(/[&<>"']/g, m => map[m]);
+      }
+    })();
+  </script>
+  <%- include('partials/back-to-top') %>
+  <script src="/js/dark-mode.js"></script>
+</body>
+</html>
