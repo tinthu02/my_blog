@@ -724,16 +724,19 @@
 <!-- ═══════════════════════════════════════
        SCRIPT: Bookmark data
   ════════════════════════════════════════ -->
+  <script id="bookmark-data" type="application/json">
+    <%- JSON.stringify({
+      id: String(post._id),
+      title: post.title || '',
+      excerpt: (post.excerpt || '').substring(0, 120),
+      category: post.category || '',
+      readingTime: post.readingTime || 1,
+      thumbnail: post.thumbnail || '',
+      url: '/post/' + String(post._id)
+    }) %>
+  </script>
   <script>
-    var bookmarkData = {
-      id: '<%= post._id %>',
-      title: <%- JSON.stringify(post.title) %>,
-      excerpt: <%- JSON.stringify((post.excerpt || '').substring(0, 120)) %>,
-      category: <%- JSON.stringify(post.category) %>,
-      readingTime: <%= post.readingTime || 1 %>,
-      thumbnail: <%- JSON.stringify(post.thumbnail || '') %>,
-      url: '/post/<%= post._id %>'
-    };
+    var bookmarkData = JSON.parse(document.getElementById('bookmark-data').textContent);
   </script>
 
   <!-- ═══════════════════════════════════════
