@@ -4,8 +4,14 @@ const commentSchema = new mongoose.Schema(
   {
     postId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Post',       // tham chiếu đến model Post
+      ref: 'Post',
       required: true,
+    },
+    // null = bình luận gốc, có giá trị = reply của bình luận đó
+    parentId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Comment',
+      default: null,
     },
     author: {
       type: String,
@@ -23,7 +29,7 @@ const commentSchema = new mongoose.Schema(
       default: Date.now,
     },
   },
-  { timestamps: false } // chúng ta tự quản lý createdAt ở trên, không cần updatedAt
+  { timestamps: false }
 );
 
 module.exports = mongoose.model('Comment', commentSchema);

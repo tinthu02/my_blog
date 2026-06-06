@@ -14,11 +14,11 @@
 }
 
 #dark-mode-toggle img {
-  filter: invert(1); /* đảo màu: đen → trắng, hiện rõ trên navbar tối */
+  filter: none; /* đlight mode giữ màu gốc của icon */
 }
 
 body.dark #dark-mode-toggle img {
-  filter: invert(0.8); /* hơi xám nhạt cho hài hòa với dark mode */
+  filter: invert(1) brightness(1.2) /* dark mode đảo sang sáng */
 }
 
 body.dark {
@@ -60,3 +60,49 @@ body.dark #toc a.toc-active { background: #1e3a5f; color: #93c5fd; }
 /* Related posts */
 body.dark .related-card { background: #1e293b; border-color: #334155; }
 body.dark .related-title { color: #60a5fa; }
+
+/* ── Navbar (gmeow-nav) ── */
+body.dark .gmeow-nav { background: #1e1a16 !important; border-bottom-color: #3a3028 !important; }
+body.dark .gmeow-brand-text { color: #f0e6d8 !important; }
+body.dark .gmeow-links a { color: #b8a898 !important; }
+body.dark .gmeow-links a:hover { background: #2e2620 !important; color: #f0e6d8 !important; }
+body.dark .gmeow-dark-btn { border-color: #4a3e32 !important; }
+body.dark .gmeow-dark-btn:hover { background: #2e2620 !important; border-color: #c87941 !important; }
+body.dark .gmeow-rl-btn { border-color: #4a3e32 !important; color: #b8a898 !important; }
+body.dark .gmeow-rl-btn:hover { background: #2e2620 !important; border-color: #c87941 !important; color: #f0e6d8 !important; }
+
+/* ── Bookmark button ── */
+body.dark .bookmark-btn { border-color: #4a3e32 !important; color: #a89888 !important; }
+body.dark .bookmark-btn:hover { border-color: #c87941 !important; color: #c87941 !important; background: #2a1f14 !important; }
+body.dark .card-bookmark-btn { border-color: #4a3e32 !important; color: #a89888 !important; }
+body.dark .card-bookmark-btn:hover { border-color: #c87941 !important; color: #c87941 !important; background: #2a1f14 !important; }
+
+/* ── Footer ── */
+body.dark .gmeow-footer { background: #1e1a16 !important; color: #b8a898 !important; }
+body.dark .gmeow-footer-brand-name { color: #f0e6d8 !important; }
+body.dark .gmeow-footer-desc { color: #7a6a5a !important; }
+body.dark .gmeow-footer h6 { color: #c87941 !important; }
+body.dark .gmeow-footer-bottom { color: #6a5a4a !important; }
+body.dark .gmeow-footer-divider { border-color: #3d3530 !important; }
+body.dark .gmeow-subscribe-input { background: #3d3530 !important; border-color: #4a3e32 !important; color: #f0e6d8 !important; }
+body.dark .footer-author { border-color: #3d3530 !important; }
+body.dark .footer-author:hover { background: #3a3028 !important; border-color: #c87941 !important; }
+
+/* ── Search results dropdown ── */
+body.dark .list-group-item { background: #1e293b !important; color: #e2e8f0 !important; border-color: #334155 !important; }
+body.dark .list-group-item:hover { background: #334155 !important; }
+body.dark .list-group-item mark { background: #854d0e; color: #fef3c7; }
+
+/* ── Comment & Reply ── */
+body.dark .comment-item { border-color: #334155 !important; }
+body.dark .comment-author { color: #cbd5e1 !important; }
+body.dark .comment-time { color: #64748b !important; }
+body.dark .reply-item { background: #162032 !important; border-color: #334155 !important; }
+body.dark .reply-form-wrapper { background: #162032 !important; border-color: #334155 !important; }
+body.dark .reply-btn { color: #94a3b8 !important; border-color: #475569 !important; }
+body.dark .reply-btn:hover { background: #334155 !important; color: #e2e8f0 !important; }
+body.dark .reply-btn.active { background: #1e3a5f !important; border-color: #3b82f6 !important; color: #93c5fd !important; }
+body.dark .reply-author-badge { background: #1e3a5f !important; color: #93c5fd !important; }
+
+/* ── Masonry card (home) ── */
+body.dark .masonry-item .card { border-color: #334155 !important; }

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chỉnh sửa profile — Admin</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+  <style>
+    body { background: #f8fafc; }
+    .avatar-preview {
+      width: 80px; height: 80px; border-radius: 50%;
+      object-fit: cover; border: 2px solid #dee2e6;
+    }
+    .avatar-placeholder {
+      width: 80px; height: 80px; border-radius: 50%;
+      background: #e9ecef; display: flex; align-items: center;
+      justify-content: center; font-size: 1.8rem; font-weight: 600;
+      color: #6c757d; border: 2px solid #dee2e6;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand fw-bold" href="/admin/posts">⚙️ Admin Panel</a>
+      <div class="collapse navbar-collapse">
+        <ul class="navbar-nav ms-auto gap-1">
+          <li class="nav-item"><a class="nav-link" href="/" target="_blank">🌐 Trang chủ</a></li>
+          <li class="nav-item"><a class="nav-link" href="/admin/posts/new">✏️ Bài viết mới</a></li>
+          <li class="nav-item"><a class="nav-link active" href="/admin/profile">👤 Profile</a></li>
+          <li class="nav-item"><a class="nav-link text-danger" href="/admin/logout">Đăng xuất</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container py-4" style="max-width: 680px;">
+    <div class="d-flex align-items-center gap-3 mb-4">
+      <a href="/admin/posts" class="btn btn-sm btn-outline-secondary">← Dashboard</a>
+      <h1 class="h4 mb-0">Chỉnh sửa profile tác giả</h1>
+    </div>
+
+    <% if (success) { %>
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+      ✓ Đã lưu thành công!
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <% } %>
+
+    <!-- Preview avatar + link trang tác giả -->
+    <div class="card mb-4">
+      <div class="card-body d-flex align-items-center gap-3">
+        <div id="avatarPreviewWrap">
+          <% if (user.avatar) { %>
+            <img id="avatarPreview" src="<%= user.avatar %>" alt="Avatar" class="avatar-preview" />
+          <% } else { %>
+            <div class="avatar-placeholder" id="avatarPlaceholder">
+              <%= (user.displayName || user.username).charAt(0).toUpperCase() %>
+            </div>
+          <% } %>
+        </div>
+        <div>
+          <div class="fw-semibold"><%= user.displayName || user.username %></div>
+          <div class="text-muted small">@<%= user.username %></div>
+          <a href="/author/<%= user.username %>" target="_blank" class="small text-primary">
+            Xem trang tác giả ↗
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <form action="/admin/profile" method="POST">
+      <!-- Thông tin cơ bản -->
+      <div class="card mb-3">
+        <div class="card-header fw-semibold">Thông tin cơ bản</div>
+        <div class="card-body">
+          <div class="mb-3">
+            <label class="form-label">Tên hiển thị</label>
+            <input type="text" name="displayName" class="form-control"
+                   value="<%= user.displayName || '' %>"
+                   placeholder="Tên đầy đủ hoặc bút danh" maxlength="60" />
+            <div class="form-text">Hiển thị trên trang tác giả thay cho username</div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Tiểu sử</label>
+            <textarea name="bio" class="form-control" rows="4"
+                      placeholder="Giới thiệu ngắn về bạn..."
+                      maxlength="500"><%= user.bio || '' %></textarea>
+            <div class="form-text">Tối đa 500 ký tự</div>
+          </div>
+          <div class="mb-0">
+            <label class="form-label">URL ảnh đại diện</label>
+            <input type="url" name="avatar" class="form-control" id="avatarInput"
+                   value="<%= user.avatar || '' %>"
+                   placeholder="https://... (dán link ảnh Cloudinary hoặc URL ngoài)" />
+            <div class="form-text">Paste URL ảnh từ Cloudinary hoặc bất kỳ link nào</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mạng xã hội -->
+      <div class="card mb-4">
+        <div class="card-header fw-semibold">Mạng xã hội <span class="text-muted fw-normal">(tuỳ chọn)</span></div>
+        <div class="card-body">
+          <div class="mb-3">
+            <label class="form-label">Facebook</label>
+            <input type="url" name="facebook" class="form-control"
+                   value="<%= (user.social && user.social.facebook) || '' %>"
+                   placeholder="https://facebook.com/..." />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">X / Twitter</label>
+            <input type="url" name="twitter" class="form-control"
+                   value="<%= (user.social && user.social.twitter) || '' %>"
+                   placeholder="https://x.com/..." />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">GitHub</label>
+            <input type="url" name="github" class="form-control"
+                   value="<%= (user.social && user.social.github) || '' %>"
+                   placeholder="https://github.com/..." />
+          </div>
+          <div class="mb-0">
+            <label class="form-label">Website</label>
+            <input type="url" name="website" class="form-control"
+                   value="<%= (user.social && user.social.website) || '' %>"
+                   placeholder="https://..." />
+          </div>
+        </div>
+      </div>
+
+      <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-primary px-4">Lưu thay đổi</button>
+        <a href="/author/<%= user.username %>" target="_blank" class="btn btn-outline-secondary">
+          Xem trang tác giả ↗
+        </a>
+      </div>
+    </form>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const avatarInput = document.getElementById('avatarInput');
+    if (avatarInput) {
+      avatarInput.addEventListener('input', function () {
+        const url = this.value.trim();
+        const wrap = document.getElementById('avatarPreviewWrap');
+        if (!url) {
+          wrap.innerHTML = '<div class="avatar-placeholder">?</div>';
+          return;
+        }
+        wrap.innerHTML = '<img id="avatarPreview" src="' + url + '" alt="Avatar" class="avatar-preview" onerror="this.style.display=\'none\'" />';
+      });
+    }
+  </script>
+</body>
+</html>

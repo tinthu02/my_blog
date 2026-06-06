@@ -4,6 +4,20 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Blog - Trang chủ</title>
+  <meta name="description" content="Blog cá nhân — nơi chia sẻ bài viết về công nghệ, đời sống, du lịch, ẩm thực và nhiều chủ đề thú vị khác.">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="<%= process.env.SITE_URL || 'http://localhost:3000' %>/">
+  <meta property="og:title" content="Blog - Trang chủ">
+  <meta property="og:description" content="Blog cá nhân — nơi chia sẻ bài viết về công nghệ, đời sống, du lịch, ẩm thực và nhiều chủ đề thú vị khác.">
+  <meta property="og:image" content="<%= process.env.SITE_URL || 'http://localhost:3000' %>/images/og-default.png">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Blog - Trang chủ">
+  <meta name="twitter:description" content="Blog cá nhân — nơi chia sẻ bài viết về công nghệ, đời sống, du lịch, ẩm thực và nhiều chủ đề thú vị khác.">
+  <meta name="twitter:image" content="<%= process.env.SITE_URL || 'http://localhost:3000' %>/images/og-default.png">
   <!-- Anti-flash: phải đứng trước mọi CSS -->
   <script>
     if (localStorage.getItem('theme') === 'dark') {
@@ -14,18 +28,224 @@
   <link rel="stylesheet" href="/css/dark-mode.css">
 </head>
 <body>
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <style>
+    /* ── Gmeow Header ── */
+    .gmeow-nav {
+      background: #f5ede0;
+      border-bottom: 1.5px solid #e8d9c5;
+      padding: 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .gmeow-nav .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      gap: 1rem;
+    }
+    .gmeow-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      flex-shrink: 0;
+    }
+    .gmeow-brand img { height: 50px; width: auto; }
+    .gmeow-brand-text {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #2d2d2d;
+      letter-spacing: -0.5px;
+    }
+    .gmeow-brand-text span { color: #c87941; }
+    .gmeow-links {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .gmeow-links a {
+      color: #2d2d2d;
+      text-decoration: none;
+      font-size: 1rem;
+      font-weight: 600;
+      padding: 6px 16px;
+      border-radius: 20px;
+      transition: background 0.15s, color 0.15s;
+    }
+    .gmeow-links a:hover { background: #ead6bc; color: #2d2d2d; }
+    .gmeow-dark-btn {
+      background: none;
+      border: 1.5px solid #d4b896;
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+      padding: 0;
+      flex-shrink: 0;
+    }
+    .gmeow-dark-btn:hover { background: #ead6bc; border-color: #c87941; }
+    .gmeow-nav-right { display: flex; align-items: center; gap: 0.5rem; }
+    .gmeow-rl-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      color: #2d2d2d; text-decoration: none; font-size: 0.88rem; font-weight: 600;
+      padding: 6px 14px; border-radius: 20px;
+      border: 1.5px solid #d4b896;
+      transition: background 0.15s, border-color 0.15s;
+      position: relative;
+    }
+    .gmeow-rl-btn:hover { background: #ead6bc; border-color: #c87941; color: #2d2d2d; }
+    .gmeow-rl-count {
+      background: #c87941; color: #fff;
+      font-size: 0.65rem; font-weight: 700;
+      width: 16px; height: 16px; border-radius: 50%;
+      display: inline-flex; align-items: center; justify-content: center;
+    }
+    /* dark mode styles handled by dark-mode.css via body.dark */
+    .card-author {
+      font-size: 0.78rem;
+      color: #9a8a7a;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin: 0;
+    }
+    .card-author-link {
+      color: #c87941;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .card-author-link:hover {
+      color: #a8622e;
+      text-decoration: underline;
+    }
+    /* dark mode for author/bookmark handled by dark-mode.css */    /* ── Gmeow Footer ── */
+    .gmeow-footer {
+      background: #f5ede0;
+      color: #2d2d2d;
+      padding: 3rem 0 1.5rem;
+      margin-top: 4rem;
+    }
+    .gmeow-footer-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 0.75rem;
+    }
+    .gmeow-footer-brand img {
+      height: 44px;
+      width: auto;
+    }
+    .gmeow-footer-brand-name {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #2d2d2d;
+      letter-spacing: -0.3px;
+    }
+    .gmeow-footer-brand-name span { color: #c87941; }
+    .gmeow-footer-desc {
+      font-size: 0.9rem;
+      color: #a89888;
+      line-height: 1.6;
+      max-width: 280px;
+    }
+    .gmeow-footer h6 {
+      font-size: 1rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #c87941;
+      margin-bottom: 0.75rem;
+    }
+    .gmeow-subscribe-wrap { display: flex; }
+    .gmeow-subscribe-input {
+      background: #3d3530;
+      border: 1px solid #4a3e32;
+      border-right: none;
+      color: #f0e6d8;
+      border-radius: 8px 0 0 8px;
+      padding: 8px 12px;
+      font-size: 0.85rem;
+      flex: 1;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .gmeow-subscribe-input::placeholder { color:  #fff; }
+    .gmeow-subscribe-input:focus { border-color: #c87941; }
+    .gmeow-subscribe-btn {
+      background: #c87941;
+      border: none;
+      color: #fff;
+      border-radius: 0 8px 8px 0;
+      padding: 8px 16px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.15s;
+    }
+    .gmeow-subscribe-btn:hover { background: #a8622e; }
+    .gmeow-footer-divider { border-color: #3d3530; margin: 2rem 0 1rem; }
+    .gmeow-footer-bottom { font-size: 0.78rem; color: #6a5a4a; }
+    .footer-author-link { text-decoration: none; }
+    .footer-author {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 1rem;
+      padding: 8px 12px;
+      border: 1px solid #3d3530;
+      border-radius: 10px;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .footer-author:hover { border-color: #c87941; background: #3a3028; }
+    .footer-author-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #c87941;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+    }
+    .footer-author-name { font-size: 0.88rem; font-weight: 600; color: #c87941; }
+    .footer-author-sub { font-size: 0.75rem; color: #c87941; }
+    .gmeow-footer-bottom a { color: #8a7a6a; text-decoration: none; }
+    .gmeow-footer-bottom a:hover { color: #c87941; }
+  </style>
+
+  <nav class="gmeow-nav">
     <div class="container">
-      <a class="navbar-brand" href="/">My Blog</a>
-      <div class="collapse navbar-collapse">
-        <ul class="navbar-nav ms-auto">
-          <li class="nav-item"><a class="nav-link" href="/">Trang chủ</a></li>
-          <li class="nav-item"><a class="nav-link" href="/admin">Admin</a></li>
-          <li class="nav-item">
-            <button id="dark-mode-toggle" class="btn btn-sm btn-outline-light ms-2 my-auto" style="padding: 4px 8px;">
-              <img id="dark-mode-icon" src="/images/idea.png" width="20" height="20" alt="Dark mode">
-            </button>
+      <a class="gmeow-brand" href="/">
+        <img src="/images/logo.png" alt="Gmeow" onerror="this.style.display='none'">
+        <span class="gmeow-brand-text">G<span>meow</span></span>
+      </a>
+      <div class="gmeow-nav-right">
+        <ul class="gmeow-links">
+          <li><a href="/">Trang chủ</a></li>
         </ul>
+        <a href="/reading-list" class="gmeow-rl-btn" id="nav-rl-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.101l-5.223 2.815A.5.5 0 0 1 2 15.5V2zm2-1a1 1 0 0 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0 0-1-1H4z"/>
+          </svg>
+          Đọc sau
+          <span class="gmeow-rl-count" id="nav-rl-count" style="display:none">0</span>
+        </a>
+        <button id="dark-mode-toggle" class="gmeow-dark-btn" aria-label="Chuyển dark mode">
+          <img id="dark-mode-icon" src="/public/images/idea.png" width="18" height="18" alt="Dark mode">
+        </button>
       </div>
     </div>
   </nav>
@@ -41,11 +261,17 @@
     
     <!-- Thanh tìm kiếm -->
     <div class="row mb-4">
-      <div class="col-md-6 mx-auto position-relative">
+      <div class="col-md-8 mx-auto position-relative">
         <form action="/search" method="GET" id="search-form">
-          <div class="input-group">
+          <div class="d-flex gap-2">
             <input type="text" id="search-input" name="q" class="form-control" placeholder="Tìm kiếm bài viết..." autocomplete="off">
-            <button class="btn btn-outline-secondary" type="submit">Tìm</button>
+            <select name="category" class="form-select" style="max-width:180px;">
+              <option value="">Tất cả danh mục</option>
+              <% categories.forEach(cat => { %>
+                <option value="<%= cat %>"><%= cat %></option>
+              <% }) %>
+            </select>
+            <button class="btn btn-primary" type="submit">Tìm</button>
           </div>
         </form>
         <!-- Dropdown kết quả gợi ý -->
@@ -53,20 +279,100 @@
       </div>
     </div>
 
-    <!-- Container chứa danh sách bài viết -->
-    <div id="posts-container" class="row">
+    <!-- Masonry CSS -->
+    <style>
+      .masonry {
+        position: relative;
+      }
+      .masonry-item {
+        width: calc(50% - 12px);
+        margin-bottom: 1.5rem;
+      }
+      .masonry-item .card {
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        overflow: hidden;
+        transition: box-shadow 0.2s, transform 0.2s;
+      }
+      .masonry-item .card:hover {
+        box-shadow: 0 6px 24px rgba(0,0,0,0.1);
+        transform: translateY(-2px);
+      }
+      .masonry-item .card > img,
+      .masonry-item .card .card-body > img:first-child {
+        width: 100%;
+        object-fit: cover;
+        display: block;
+      }
+      .masonry-item .card-body {
+        padding: 1rem 1.25rem;
+      }
+      @media (max-width: 768px) {
+        .masonry-item { width: 100%; }
+      }
+      /* Bookmark button trên card */
+      .card-bookmark-btn {
+        display: inline-flex; align-items: center; gap: 5px;
+        padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600;
+        border: 1.5px solid #d4b896; background: transparent; color: #888; cursor: pointer;
+        transition: all 0.2s;
+      }
+      .card-bookmark-btn:hover { border-color: #c87941; color: #c87941; background: #fdf3e8; }
+      .card-bookmark-btn.bookmarked { background: #c87941; border-color: #c87941; color: #fff; }
+      .card-bookmark-btn.bookmarked:hover { background: #a8622e; border-color: #a8622e; }
+      /* dark mode for bookmark btn handled by dark-mode.css */
+    </style>
+
+    <!-- Container masonry -->
+    <div id="posts-container" class="masonry">
       <% if (posts && posts.length > 0) { %>
         <% posts.forEach(post => { %>
-          <div class="col-md-6 mb-4 post-item">
-            <div class="card h-100">
+          <div class="masonry-item post-item">
+            <div class="card">
+              <% if (post.thumbnail) { %>
+                <img src="<%= post.thumbnail %>" alt="<%= post.title %>">
+              <% } %>
               <div class="card-body">
-                <h5 class="card-title"><a href="/post/<%= post._id %>"><%= post.title %></a></h5>
-                <h6 class="card-subtitle mb-2 text-muted">
-                  <%= post.category %> | <%= post.createdAt.toLocaleDateString('vi-VN') %>
-                  <% if (post.readingTime) { %> · <%= post.readingTime %> phút đọc<% } %>
-                </h6>
-                <p class="card-text"><%= post.excerpt || post.content.substring(0, 200) + '...' %></p>
-                <a href="/post/<%= post._id %>" class="btn btn-primary">Đọc thêm</a>
+                <h5 class="card-title mb-1">
+                  <a href="/post/<%= post._id %>" style="text-decoration:none; color:inherit;">
+                    <%= post.title %>
+                  </a>
+                </h5>
+                <p class="text-muted small mb-1">
+                  <%= post.category %> · <%= post.createdAt.toLocaleDateString('vi-VN') %>
+                  · <img src="/images/hourglass.png" width="12" height="12" alt="" style="opacity:0.5; vertical-align:middle; margin-top:-2px;"> <%= post.readingTime || 1 %> phút đọc
+                </p>
+                <p class="card-author mb-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="currentColor" viewBox="0 0 16 16" style="margin-top:-2px">
+                    <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.029 10 8 10c-2.03 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"/>
+                  </svg>
+                  <a href="/author/<%= post.author %>" class="card-author-link"><%= post.author %></a>
+                </p>
+                <p class="card-text mb-3"><%=
+                  (post.excerpt || post.content)
+                    .replace(/<[^>]+>/g, ' ')
+                    .replace(/\s+/g, ' ')
+                    .trim()
+                    .substring(0, 160) + '...'
+                %></p>
+                <div class="d-flex align-items-center gap-2">
+                  <a href="/post/<%= post._id %>" class="btn btn-primary btn-sm">Đọc thêm</a>
+                  <button class="card-bookmark-btn"
+                    onclick="toggleCardBookmark(this)"
+                    data-id="<%= post._id %>"
+                    data-title="<%= post.title.replace(/"/g, '&quot;') %>"
+                    data-excerpt="<%= (post.excerpt || '').substring(0, 120).replace(/"/g, '&quot;') %>"
+                    data-category="<%= post.category %>"
+                    data-reading-time="<%= post.readingTime || 1 %>"
+                    data-thumbnail="<%= post.thumbnail || '' %>"
+                    data-url="/post/<%= post._id %>"
+                    title="Lưu đọc sau">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                      <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.101l-5.223 2.815A.5.5 0 0 1 2 15.5V2zm2-1a1 1 0 0 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0 0-1-1H4z"/>
+                    </svg>
+                    <span>Đọc sau</span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -80,25 +386,51 @@
     <%- include('partials/pagination') %>
   </div>
 
-  <footer class="bg-dark text-light py-4 mt-5">
+  <footer class="gmeow-footer">
     <div class="container">
-      <div class="row">
-        <div class="col-md-6 mb-3 mb-md-0">
-          <h5>Đăng ký nhận tin</h5>
-          <p class="small">Nhận thông báo về bài viết mới nhất.</p>
-          <form id="subscribe-form" class="row g-2">
-            <div class="col-8">
-              <input type="email" id="subscribe-email" class="form-control" placeholder="Email của bạn" required>
+      <div class="row g-4">
+        <!-- Brand -->
+        <div class="col-md-4">
+          <div class="gmeow-footer-brand">
+            <img src="/images/logo.png" alt="Gmeow" onerror="this.style.display='none'">
+            <span class="gmeow-footer-brand-name">G<span>meow</span></span>
+          </div>
+          <p class="gmeow-footer-desc">Một góc nhỏ để viết, để nghĩ, và để nhớ.</p>
+          <!-- Author mini card -->
+          <% if (typeof siteAuthor !== 'undefined' && siteAuthor) { %>
+          <a href="/author/<%= siteAuthor.username %>" class="footer-author-link">
+            <div class="footer-author">
+              <% if (siteAuthor.avatar) { %>
+                <img src="<%= siteAuthor.avatar %>" class="footer-author-avatar" style="object-fit:cover;padding:0;" alt="">
+              <% } else { %>
+                <div class="footer-author-avatar">
+                  <%= (siteAuthor.displayName || siteAuthor.username).charAt(0).toUpperCase() %>
+                </div>
+              <% } %>
+              <div>
+                <div class="footer-author-name"><%= siteAuthor.displayName || siteAuthor.username %></div>
+                <div class="footer-author-sub">Xem trang tác giả →</div>
+              </div>
             </div>
-            <div class="col-4">
-              <button type="submit" id="subscribe-btn" class="btn btn-primary w-100">Đăng ký</button>
+          </a>
+          <% } %>
+        </div>
+        <!-- Subscribe -->
+        <div class="col-md-5 offset-md-3">
+          <h6>Đăng ký nhận bài mới</h6>
+          <p style="font-size:0.9rem;color: #a89888;;margin-bottom:0.75rem;">Đăng ký để nhận những bài viết mới nhất của Gmeow :3</p>
+          <form id="subscribe-form">
+            <div class="gmeow-subscribe-wrap">
+              <input type="email" id="subscribe-email" class="gmeow-subscribe-input" placeholder="email-của-bạn@.com" required>
+              <button type="submit" id="subscribe-btn" class="gmeow-subscribe-btn">Đăng ký</button>
             </div>
+            <div id="subscribe-message" class="mt-2" style="font-size:0.8rem;"></div>
           </form>
-          <div id="subscribe-message" class="mt-2"></div>
         </div>
-        <div class="col-md-6 text-md-end">
-          <p class="mb-0">&copy; <%= new Date().getFullYear() %> My Blog. All rights reserved.</p>
-        </div>
+      </div>
+      <hr class="gmeow-footer-divider">
+      <div class="gmeow-footer-bottom">
+        <span>&copy; <%= new Date().getFullYear() %> Gmeow. All rights reserved.</span>
       </div>
     </div>
   </footer>
@@ -248,5 +580,86 @@
   </script>
   <%- include('partials/back-to-top') %>
   <script src="/js/dark-mode.js"></script>
+  <script>
+    function getBookmarks() {
+      try { return JSON.parse(localStorage.getItem('gmeow_bookmarks') || '[]'); }
+      catch { return []; }
+    }
+
+    function updateNavBadge() {
+      var count = getBookmarks().length;
+      var badge = document.getElementById('nav-rl-count');
+      if (!badge) return;
+      if (count > 0) {
+        badge.style.display = 'inline-flex';
+        badge.textContent = count > 9 ? '9+' : count;
+      } else {
+        badge.style.display = 'none';
+      }
+    }
+
+    function toggleCardBookmark(btn) {
+      var id = btn.dataset.id;
+      var bookmarks = getBookmarks();
+      var isBookmarked = bookmarks.some(function(b) { return b.id === id; });
+
+      if (isBookmarked) {
+        bookmarks = bookmarks.filter(function(b) { return b.id !== id; });
+      } else {
+        bookmarks.unshift({
+          id: id,
+          title: btn.dataset.title,
+          excerpt: btn.dataset.excerpt,
+          category: btn.dataset.category,
+          readingTime: parseInt(btn.dataset.readingTime) || 1,
+          thumbnail: btn.dataset.thumbnail,
+          url: btn.dataset.url,
+          savedAt: new Date().toISOString()
+        });
+      }
+      localStorage.setItem('gmeow_bookmarks', JSON.stringify(bookmarks));
+      updateCardBookmarkUI(btn, !isBookmarked);
+      updateNavBadge();
+    }
+
+    function updateCardBookmarkUI(btn, bookmarked) {
+      var span = btn.querySelector('span');
+      var svg = btn.querySelector('svg');
+      if (bookmarked) {
+        btn.classList.add('bookmarked');
+        if (span) span.textContent = 'Đã lưu';
+        if (svg) svg.innerHTML = '<path d="M2 2v13.5a.5.5 0 0 0 .777.416L8 13.101l5.223 2.815A.5.5 0 0 0 14 15.5V2a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z"/>';
+      } else {
+        btn.classList.remove('bookmarked');
+        if (span) span.textContent = 'Đọc sau';
+        if (svg) svg.innerHTML = '<path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.101l-5.223 2.815A.5.5 0 0 1 2 15.5V2zm2-1a1 1 0 0 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0 0-1-1H4z"/>';
+      }
+    }
+
+    // Khởi tạo trạng thái bookmark cho tất cả card khi load trang
+    document.addEventListener('DOMContentLoaded', function() {
+      var bookmarks = getBookmarks();
+      var ids = bookmarks.map(function(b) { return b.id; });
+      document.querySelectorAll('.card-bookmark-btn').forEach(function(btn) {
+        if (ids.includes(btn.dataset.id)) {
+          updateCardBookmarkUI(btn, true);
+        }
+      });
+      updateNavBadge();
+    });
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/masonry-layout@4.2.2/dist/masonry.pkgd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/imagesloaded@5/imagesloaded.pkgd.min.js"></script>
+  <script>
+    var grid = document.getElementById('posts-container');
+    imagesLoaded(grid, function() {
+      new Masonry(grid, {
+        itemSelector: '.masonry-item',
+        columnWidth: '.masonry-item',
+        percentPosition: true,
+        gutter: 24
+      });
+    });
+  </script>
 </body>
 </html>

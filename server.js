@@ -13,6 +13,7 @@ const adminRoutes = require('./routes/admin');
 const apiRoutes = require('./routes/api');
 
 const app = express();
+app.set('trust proxy', 1); // Đọc IP thật qua reverse proxy (Render, Heroku, nginx...)
 
 // 1. Kết nối MongoDB
 mongoose.connect(process.env.MONGODB_URI)

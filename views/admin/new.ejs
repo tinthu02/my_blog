@@ -5,6 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin - Bài viết mới</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Xóa dòng Quill 2.0 cũ, thay bằng: -->
+  <link href="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.snow.css" rel="stylesheet">
+  <style>
+    #quill-editor { height: 400px; font-size: 1rem; }
+    .ql-toolbar { border-radius: 6px 6px 0 0; }
+    .ql-container { border-radius: 0 0 6px 6px; }
+  </style>
 </head>
 <body>
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -22,30 +29,176 @@
   <div class="container mt-4">
     <h2>Tạo bài viết mới</h2>
     <hr>
-    <form action="/admin/posts" method="POST">
+    <form action="/admin/posts" method="POST" enctype="multipart/form-data">
       <div class="mb-3">
         <label for="title" class="form-label">Tiêu đề</label>
         <input type="text" class="form-control" id="title" name="title" required>
       </div>
       <div class="mb-3">
         <label for="category" class="form-label">Danh mục</label>
-        <select class="form-select" id="category" name="category" required>
-          <option value="" disabled selected>-- Chọn danh mục --</option>
-          <option value="Công nghệ">Công nghệ</option>
-          <option value="Đời sống">Đời sống</option>
-          <option value="Du lịch">Du lịch</option>
-          <option value="Ẩm thực">Ẩm thực</option>
-          <option value="Khác">Khác</option>
-        </select>
+        <input type="text" class="form-control" id="category" name="category"
+          list="category-list" placeholder="Chọn hoặc nhập danh mục mới..." required autocomplete="off">
+        <datalist id="category-list">
+          <% categories.forEach(cat => { %>
+            <option value="<%= cat %>">
+          <% }) %>
+        </datalist>
+        <div class="form-text">Chọn danh mục có sẵn hoặc gõ tên mới để tạo danh mục.</div>
       </div>
       <div class="mb-3">
-        <label for="content" class="form-label">Nội dung</label>
-        <textarea class="form-control" id="content" name="content" rows="15" required></textarea>
+        <label class="form-label">Ảnh thumbnail</label>
+        <!-- Tab chọn cách thêm ảnh -->
+        <div class="d-flex gap-2 mb-2">
+          <button type="button" class="btn btn-sm btn-primary" id="tab-upload" onclick="switchTab('upload')">📁 Từ máy</button>
+          <button type="button" class="btn btn-sm btn-outline-secondary" id="tab-url" onclick="switchTab('url')">🔗 Từ URL</button>
+        </div>
+        <!-- Upload từ máy -->
+        <div id="panel-upload">
+          <input type="file" class="form-control" id="thumbnail" name="thumbnail" accept="image/*">
+          <div class="form-text">Định dạng: JPG, PNG, WebP. Khuyến nghị: 800×450px.</div>
+        </div>
+        <!-- Nhập URL -->
+        <div id="panel-url" style="display:none;">
+          <input type="url" class="form-control" id="thumbnail-url" placeholder="https://example.com/image.jpg">
+          <input type="hidden" name="thumbnailUrl" id="thumbnail-url-hidden">
+          <div class="form-text">Dán URL ảnh từ internet hoặc Cloudinary.</div>
+        </div>
+        <div id="thumbnail-preview" class="mt-2"></div>
       </div>
-      <button type="submit" class="btn btn-primary">Đăng bài</button>
-      <a href="/admin/posts" class="btn btn-secondary">Hủy</a>
+      <div class="mb-3">
+        <label class="form-label">Nội dung</label>
+        <!-- Quill editor hiển thị ở đây -->
+        <div id="quill-editor"></div>
+        <!-- Bỏ required đi -->
+        <textarea id="content" name="content" style="display:none;"></textarea>
+      </div>
+      <input type="hidden" name="status" id="post-status" value="published">
+      <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-primary" onclick="setStatus('published')">🚀 Đăng bài</button>
+        <button type="submit" class="btn btn-outline-warning" onclick="setStatus('draft')">📝 Lưu nháp</button>
+        <a href="/admin/posts" class="btn btn-secondary">Hủy</a>
+      </div>
     </form>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
+  <script src="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.min.js"></script>
+  <script>
+    // Khởi tạo Quill
+    const quill = new Quill('#quill-editor', {
+      theme: 'snow',
+      modules: {
+        toolbar: {
+          container: [
+            [{ header: [1, 2, 3, false] }],
+            ['bold', 'italic', 'underline', 'strike'],
+            [{ list: 'ordered' }, { list: 'bullet' }],
+            [{ align: [] }],
+            ['link', 'image', 'blockquote', 'code-block'],
+            [{ color: [] }, { background: [] }],
+            ['clean']
+          ],
+          handlers: {
+            image: function() {
+              const quillInstance = this.quill;
+              // Tạo dialog chọn cách thêm ảnh
+              const choice = confirm('Nhấn OK để upload ảnh từ máy\nNhấn Cancel để nhập URL');
+              
+              if (choice) {
+                // Upload file lên Cloudinary
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = 'image/*';
+                input.click();
+                input.onchange = async () => {
+                  const file = input.files[0];
+                  if (!file) return;
+                  
+                  const formData = new FormData();
+                  formData.append('file', file);
+                  formData.append('upload_preset', 'ml_default');
+                  
+                  try {
+                    const cloudName = '<%= process.env.CLOUDINARY_CLOUD_NAME %>';
+                    const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+                      method: 'POST',
+                      body: formData
+                    });
+                    const data = await res.json();
+                    if (data.secure_url) {
+                      const range = quillInstance.getSelection() || { index: 0 };
+                      quillInstance.insertEmbed(range.index, 'image', data.secure_url);
+                    } else {
+                      alert('Upload thất bại: ' + (data.error?.message || 'Lỗi không xác định'));
+                    }
+                  } catch (err) {
+                    alert('Lỗi upload: ' + err.message);
+                  }
+                };
+              } else {
+                // Nhập URL
+                const url = prompt('Nhập URL ảnh:');
+                if (url) {
+                  const range = quillInstance.getSelection() || { index: 0 };
+                  quillInstance.insertEmbed(range.index, 'image', url);
+                }
+              }
+            }
+          }
+        }
+      }
+    });
+
+    // Trước khi submit: copy HTML từ Quill vào textarea ẩn
+    document.querySelector('form').addEventListener('submit', function(e) {
+      const content = quill.root.innerHTML;
+      // Nếu editor trống thì không submit
+      if (quill.getText().trim().length === 0) {
+        e.preventDefault();
+        alert('Vui lòng nhập nội dung bài viết');
+        return;
+      }
+      document.getElementById('content').value = content;
+    });
+
+    function setStatus(value) {
+      document.getElementById('post-status').value = value;
+    }
+  </script>
+  <script>
+    // Tab switch
+    function switchTab(tab) {
+      document.getElementById('panel-upload').style.display = tab === 'upload' ? '' : 'none';
+      document.getElementById('panel-url').style.display = tab === 'url' ? '' : 'none';
+      document.getElementById('tab-upload').className = 'btn btn-sm ' + (tab === 'upload' ? 'btn-primary' : 'btn-outline-secondary');
+      document.getElementById('tab-url').className = 'btn btn-sm ' + (tab === 'url' ? 'btn-primary' : 'btn-outline-secondary');
+      document.getElementById('thumbnail-preview').innerHTML = '';
+    }
+
+    // Preview khi upload file
+    document.getElementById('thumbnail').addEventListener('change', function() {
+      const preview = document.getElementById('thumbnail-preview');
+      const file = this.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = e => {
+          preview.innerHTML = `<img src="${e.target.result}" style="max-height:180px; border-radius:8px; border:1px solid #dee2e6;">`;
+        };
+        reader.readAsDataURL(file);
+      } else {
+        preview.innerHTML = '';
+      }
+    });
+
+    // Preview khi nhập URL
+    document.getElementById('thumbnail-url').addEventListener('input', function() {
+      const url = this.value.trim();
+      const preview = document.getElementById('thumbnail-preview');
+      document.getElementById('thumbnail-url-hidden').value = url;
+      if (url) {
+        preview.innerHTML = `<img src="${url}" style="max-height:180px; border-radius:8px; border:1px solid #dee2e6;" onerror="this.style.display='none'">`;
+      } else {
+        preview.innerHTML = '';
+      }
+    });
+  </script>
 </html>

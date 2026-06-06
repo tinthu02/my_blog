@@ -17,6 +17,11 @@ const postSchema = new mongoose.Schema(
       trim: true,
       maxlength: 500,
     },
+    status: {
+      type: String,
+      enum: ['draft', 'published'],
+      default: 'published',  // bài cũ không có field này sẽ tự coi là published
+    },
     category: {
       type: String,
       required: [true, 'Vui lòng chọn danh mục'],
@@ -30,6 +35,14 @@ const postSchema = new mongoose.Schema(
     views: {
       type: Number,
       default: 0
+    },
+    likes: {
+      type: Number,
+      default: 0
+    },
+    thumbnail: {
+      type: String,
+      default: null,
     }
   },
   {

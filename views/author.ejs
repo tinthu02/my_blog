@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= author.displayName || author.username %> — Tác giả | Gmeow</title>
+  <meta name="description" content="<%= author.bio || 'Trang tác giả ' + (author.displayName || author.username) %>" />
+  <meta property="og:title" content="<%= author.displayName || author.username %>" />
+  <meta property="og:description" content="<%= author.bio || '' %>" />
+  <% if (author.avatar) { %>
+  <meta property="og:image" content="<%= author.avatar %>" />
+  <% } %>
+  <script>
+    if (localStorage.getItem('theme') === 'dark') {
+      document.documentElement.classList.add('dark-early');
+    }
+  </script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/dark-mode.css">
+</head>
+<body>
+  <style>
+    /* ── Gmeow Header ── */
+    .gmeow-nav {
+      background: #f5ede0;
+      border-bottom: 1.5px solid #e8d9c5;
+      padding: 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .gmeow-nav .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      gap: 1rem;
+    }
+    .gmeow-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      flex-shrink: 0;
+    }
+    .gmeow-brand img { height: 50px; width: auto; }
+    .gmeow-brand-text {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #2d2d2d;
+      letter-spacing: -0.5px;
+    }
+    .gmeow-brand-text span { color: #c87941; }
+    .gmeow-links {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .gmeow-links a {
+      color: #2d2d2d;
+      text-decoration: none;
+      font-size: 1rem;
+      font-weight: 600;
+      padding: 6px 16px;
+      border-radius: 20px;
+      transition: background 0.15s, color 0.15s;
+    }
+    .gmeow-links a:hover { background: #ead6bc; color: #2d2d2d; }
+    .gmeow-dark-btn {
+      background: none;
+      border: 1.5px solid #d4b896;
+      border-radius: 50%;
+      width: 36px; height: 36px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+      padding: 0; flex-shrink: 0;
+    }
+    .gmeow-dark-btn:hover { background: #ead6bc; border-color: #c87941; }
+    [data-bs-theme="dark"] .gmeow-nav { background: #1e1a16; border-bottom-color: #3a3028; }
+    [data-bs-theme="dark"] .gmeow-brand-text { color: #f0e6d8; }
+    [data-bs-theme="dark"] .gmeow-links a { color: #b8a898; }
+    [data-bs-theme="dark"] .gmeow-links a:hover { background: #2e2620; color: #f0e6d8; }
+    [data-bs-theme="dark"] .gmeow-dark-btn { border-color: #4a3e32; }
+    [data-bs-theme="dark"] .gmeow-dark-btn:hover { background: #2e2620; border-color: #c87941; }
+
+    /* ── Author Hero ── */
+    .author-hero {
+      padding: 3rem 0 2rem;
+      border-bottom: 1px solid #e8d9c5;
+      margin-bottom: 2.5rem;
+    }
+    .author-avatar {
+      width: 100px; height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid #e8d9c5;
+    }
+    .author-avatar-placeholder {
+      width: 100px; height: 100px;
+      border-radius: 50%;
+      background: #c87941;
+      color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.2rem; font-weight: 700;
+      border: 3px solid #e8d9c5;
+      flex-shrink: 0;
+    }
+    .author-name { font-size: 1.75rem; font-weight: 800; margin: 0 0 4px; letter-spacing: -0.3px; }
+    .author-handle { color: #9a8a7a; font-size: 0.88rem; margin-bottom: 0.75rem; }
+    .author-bio { color: #555; font-size: 0.95rem; line-height: 1.7; max-width: 500px; }
+    .author-stats { display: flex; gap: 2rem; margin-top: 1.25rem; flex-wrap: wrap; }
+    .stat-value { font-size: 1.4rem; font-weight: 800; display: block; color: #2d2d2d; line-height: 1; }
+    .stat-label { font-size: 0.72rem; color: #9a8a7a; text-transform: uppercase; letter-spacing: 0.7px; }
+    .author-social { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 1rem; }
+    .author-social a {
+      display: inline-flex; align-items: center; gap: 5px;
+      color: #555; text-decoration: none; font-size: 0.82rem;
+      padding: 4px 12px; border: 1px solid #d4c4b0; border-radius: 20px;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .author-social a:hover { border-color: #c87941; color: #c87941; }
+
+    /* ── Post Cards ── */
+    .post-card {
+      border: 1px solid #e8d9c5;
+      border-radius: 12px; overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+      height: 100%; display: flex; flex-direction: column;
+      background: #fff;
+    }
+    .post-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(200,121,65,0.12); }
+    .post-card-img { width: 100%; aspect-ratio: 16/9; object-fit: cover; }
+    .post-card-img-placeholder {
+      width: 100%; aspect-ratio: 16/9;
+      background: #f5ede0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2rem; color: #d4b896;
+    }
+    .post-card-body { padding: 1.1rem; display: flex; flex-direction: column; flex: 1; }
+    .post-card-category {
+      font-size: 0.7rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.8px;
+      color: #c87941; margin-bottom: 6px;
+    }
+    .post-card-title {
+      font-size: 1rem; font-weight: 700; line-height: 1.4; margin-bottom: 0.5rem;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .post-card-title a { color: inherit; text-decoration: none; }
+    .post-card-title a:hover { color: #c87941; }
+    .post-card-excerpt {
+      font-size: 0.84rem; color: #6c757d; line-height: 1.55; flex: 1;
+      display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .post-card-meta {
+      font-size: 0.75rem; color: #b0a090; margin-top: 0.75rem;
+      display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+    }
+
+    /* Category pills */
+    .cat-pill {
+      padding: 5px 14px; border-radius: 20px; font-size: 0.8rem;
+      border: 1px solid #d4c4b0; color: #555;
+      text-decoration: none; background: transparent;
+      transition: all 0.15s;
+    }
+    .cat-pill:hover, .cat-pill.active { background: #c87941; border-color: #c87941; color: #fff; }
+
+    /* Pagination */
+    .page-btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 38px; height: 38px; padding: 0 10px;
+      border-radius: 8px; border: 1px solid #d4c4b0;
+      background: #fff; color: #555;
+      font-size: 0.875rem; font-weight: 500;
+      text-decoration: none;
+      transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.1s;
+    }
+    .page-btn:hover { background: #f5ede0; border-color: #c87941; color: #c87941; transform: translateY(-1px); }
+    .page-btn.active { background: #c87941; border-color: #c87941; color: #fff; font-weight: 700; pointer-events: none; }
+    .page-btn.disabled { opacity: 0.4; pointer-events: none; }
+    .page-btn.ellipsis { border-color: transparent; background: transparent; pointer-events: none; color: #b0a090; }
+
+    /* ── Gmeow Footer ── */
+    .gmeow-footer { background: #2d2d2d; color: #d4c4b0; padding: 3rem 0 1.5rem; margin-top: 4rem; }
+    .gmeow-footer-brand { display: flex; align-items: center; gap: 10px; margin-bottom: 0.75rem; }
+    .gmeow-footer-brand img { height: 44px; width: auto; }
+    .gmeow-footer-brand-name { font-size: 1.4rem; font-weight: 800; color: #f0e6d8; letter-spacing: -0.3px; }
+    .gmeow-footer-brand-name span { color: #c87941; }
+    .gmeow-footer-desc { font-size: 0.9rem; color: #a89888; line-height: 1.6; max-width: 280px; }
+    .gmeow-footer-divider { border-color: #3d3530; margin: 2rem 0 1rem; }
+    .gmeow-footer-bottom { font-size: 0.78rem; color: #6a5a4a; }
+
+    /* Dark mode */
+    [data-bs-theme="dark"] .author-hero { border-bottom-color: #3a3028; }
+    [data-bs-theme="dark"] .author-bio { color: #a89888; }
+    [data-bs-theme="dark"] .stat-value { color: #f0e6d8; }
+    [data-bs-theme="dark"] .post-card { border-color: #3a3028; background: #1a1612; }
+    [data-bs-theme="dark"] .post-card-img-placeholder { background: #2a2018; color: #6a5a4a; }
+    [data-bs-theme="dark"] .cat-pill { border-color: #4a3e32; color: #a89888; }
+    [data-bs-theme="dark"] .cat-pill:hover, [data-bs-theme="dark"] .cat-pill.active { background: #c87941; border-color: #c87941; color: #fff; }
+    [data-bs-theme="dark"] .page-btn { background: #1a1612; border-color: #4a3e32; color: #a89888; }
+    [data-bs-theme="dark"] .page-btn:hover { background: #2a2018; border-color: #c87941; color: #c87941; }
+    [data-bs-theme="dark"] .author-social a { border-color: #4a3e32; color: #a89888; }
+  </style>
+
+  <!-- Header -->
+  <nav class="gmeow-nav">
+    <div class="container">
+      <a class="gmeow-brand" href="/">
+        <img src="/images/logo.png" alt="Gmeow" onerror="this.style.display='none'">
+        <span class="gmeow-brand-text">G<span>meow</span></span>
+      </a>
+      <ul class="gmeow-links">
+        <li><a href="/">Trang chủ</a></li>
+      </ul>
+      <button id="dark-mode-toggle" class="gmeow-dark-btn" aria-label="Chuyển dark mode">
+        <img id="dark-mode-icon" src="/images/idea.png" width="18" height="18" alt="Dark mode">
+      </button>
+    </div>
+  </nav>
+
+  <main class="container">
+    <!-- Hero tác giả -->
+    <section class="author-hero">
+      <div class="row align-items-center g-4">
+        <div class="col-md-8">
+          <div class="d-flex align-items-start gap-4 flex-wrap">
+            <% if (author.avatar) { %>
+              <img src="<%= author.avatar %>" alt="<%= author.displayName || author.username %>" class="author-avatar" />
+            <% } else { %>
+              <div class="author-avatar-placeholder">
+                <%= (author.displayName || author.username).charAt(0).toUpperCase() %>
+              </div>
+            <% } %>
+            <div>
+              <h1 class="author-name"><%= author.displayName || author.username %></h1>
+              <p class="author-handle">@<%= author.username %></p>
+              <% if (author.bio) { %>
+                <p class="author-bio"><%= author.bio %></p>
+              <% } %>
+              <% if (author.social && (author.social.facebook || author.social.twitter || author.social.github || author.social.website)) { %>
+              <div class="author-social">
+                <% if (author.social.facebook) { %>
+                  <a href="<%= author.social.facebook %>" target="_blank" rel="noopener">Facebook</a>
+                <% } %>
+                <% if (author.social.twitter) { %>
+                  <a href="<%= author.social.twitter %>" target="_blank" rel="noopener">X / Twitter</a>
+                <% } %>
+                <% if (author.social.github) { %>
+                  <a href="<%= author.social.github %>" target="_blank" rel="noopener">GitHub</a>
+                <% } %>
+                <% if (author.social.website) { %>
+                  <a href="<%= author.social.website %>" target="_blank" rel="noopener">Website</a>
+                <% } %>
+              </div>
+              <% } %>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="author-stats justify-content-md-end">
+            <div>
+              <span class="stat-value"><%= totalPosts %></span>
+              <span class="stat-label">Bài viết</span>
+            </div>
+            <div>
+              <span class="stat-value"><%= totalViews.toLocaleString('vi-VN') %></span>
+              <span class="stat-label">Lượt xem</span>
+            </div>
+            <div>
+              <span class="stat-value"><%= totalLikes.toLocaleString('vi-VN') %></span>
+              <span class="stat-label">Lượt thích</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Category filter -->
+    <% if (categories && categories.length > 0) { %>
+    <div class="d-flex flex-wrap gap-2 mb-4">
+      <a href="/author/<%= author.username %>" class="cat-pill active">Tất cả</a>
+      <% categories.forEach(cat => { %>
+        <a href="/author/<%= author.username %>?cat=<%= encodeURIComponent(cat) %>" class="cat-pill"><%= cat %></a>
+      <% }) %>
+    </div>
+    <% } %>
+
+    <!-- Grid bài viết -->
+    <% if (posts && posts.length > 0) { %>
+      <div class="row g-4">
+        <% posts.forEach(post => { %>
+        <div class="col-sm-6 col-lg-4">
+          <article class="post-card">
+            <% if (post.thumbnail) { %>
+              <img src="<%= post.thumbnail %>" alt="<%= post.title %>" class="post-card-img" loading="lazy" />
+            <% } else { %>
+              <div class="post-card-img-placeholder">✦</div>
+            <% } %>
+            <div class="post-card-body">
+              <div class="post-card-category"><%= post.category %></div>
+              <h2 class="post-card-title">
+                <a href="/post/<%= post._id %>"><%= post.title %></a>
+              </h2>
+              <% if (post.excerpt) { %>
+                <p class="post-card-excerpt"><%= post.excerpt %></p>
+              <% } %>
+              <div class="post-card-meta">
+                <span><%= post.readingTime || 1 %> phút đọc</span>
+                <span><%= (post.views || 0).toLocaleString('vi-VN') %> lượt xem</span>
+                <span><%= new Date(post.createdAt).toLocaleDateString('vi-VN') %></span>
+              </div>
+            </div>
+          </article>
+        </div>
+        <% }) %>
+      </div>
+
+      <!-- Phân trang -->
+      <% if (totalPages > 1) { %>
+      <div class="mt-5 text-center">
+        <%
+          const prevHref = currentPage === 2 ? `/author/${author.username}` : `/author/${author.username}?page=${currentPage - 1}`;
+          const nextHref = `/author/${author.username}?page=${currentPage + 1}`;
+          let startPage = Math.max(1, currentPage - 2);
+          let endPage = Math.min(totalPages, currentPage + 2);
+          if (endPage - startPage < 4) {
+            if (startPage === 1) endPage = Math.min(totalPages, 5);
+            else startPage = Math.max(1, endPage - 4);
+          }
+        %>
+        <div class="d-flex align-items-center justify-content-center gap-1 flex-wrap">
+          <% if (currentPage > 1) { %>
+            <a class="page-btn" href="/author/<%= author.username %>">«</a>
+            <a class="page-btn" href="<%= prevHref %>">‹</a>
+          <% } else { %>
+            <span class="page-btn disabled">«</span>
+            <span class="page-btn disabled">‹</span>
+          <% } %>
+          <% if (startPage > 1) { %>
+            <a class="page-btn" href="/author/<%= author.username %>">1</a>
+            <% if (startPage > 2) { %><span class="page-btn ellipsis">···</span><% } %>
+          <% } %>
+          <% for (let p = startPage; p <= endPage; p++) { %>
+            <% if (p === currentPage) { %>
+              <span class="page-btn active"><%= p %></span>
+            <% } else { %>
+              <a class="page-btn" href="/author/<%= author.username %>?page=<%= p %>"><%= p %></a>
+            <% } %>
+          <% } %>
+          <% if (endPage < totalPages) { %>
+            <% if (endPage < totalPages - 1) { %><span class="page-btn ellipsis">···</span><% } %>
+            <a class="page-btn" href="/author/<%= author.username %>?page=<%= totalPages %>"><%= totalPages %></a>
+          <% } %>
+          <% if (currentPage < totalPages) { %>
+            <a class="page-btn" href="<%= nextHref %>">›</a>
+            <a class="page-btn" href="/author/<%= author.username %>?page=<%= totalPages %>">»</a>
+          <% } else { %>
+            <span class="page-btn disabled">›</span>
+            <span class="page-btn disabled">»</span>
+          <% } %>
+        </div>
+        <p class="mt-2" style="font-size:0.8rem;color:#9a8a7a;">Trang <strong><%= currentPage %></strong> / <strong><%= totalPages %></strong></p>
+      </div>
+      <% } %>
+
+    <% } else { %>
+      <div class="text-center py-5" style="color:#9a8a7a;">
+        <div style="font-size:3rem;margin-bottom:1rem;">✦</div>
+        <p>Chưa có bài viết nào.</p>
+      </div>
+    <% } %>
+  </main>
+
+  <!-- Footer -->
+  <footer class="gmeow-footer">
+    <div class="container">
+      <div class="row g-4">
+        <div class="col-md-5">
+          <div class="gmeow-footer-brand">
+            <img src="/images/logo.png" alt="Gmeow" onerror="this.style.display='none'">
+            <span class="gmeow-footer-brand-name">G<span>meow</span></span>
+          </div>
+          <p class="gmeow-footer-desc">Một góc nhỏ để viết, để nghĩ, và để nhớ.</p>
+        </div>
+      </div>
+      <hr class="gmeow-footer-divider">
+      <div class="gmeow-footer-bottom">
+        <span>&copy; <%= new Date().getFullYear() %> Gmeow. All rights reserved.</span>
+      </div>
+    </div>
+  </footer>
+
+  <%- include('partials/back-to-top') %>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/js/dark-mode.js"></script>
+</body>
+</html>

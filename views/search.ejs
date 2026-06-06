@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kết quả tìm kiếm: "<%= query %>" | Blog</title>
+  <title>Tìm kiếm: "<%= query %>" | Blog</title>
+  <meta name="robots" content="noindex, follow">
+  <meta name="description" content="Kết quả tìm kiếm cho '<%= query %>' trên Blog.">
   <!-- Anti-flash: phải đứng trước mọi CSS -->
   <script>
     if (localStorage.getItem('theme') === 'dark') {
@@ -32,17 +34,26 @@
 
   <div class="container mt-4">
     <!-- Tiêu đề kết quả -->
-    <h2>Kết quả tìm kiếm: "<%= query %>"</h2>
+    <h2>Kết quả tìm kiếm
+      <% if (query) { %>"<%= query %>"<% } %>
+      <% if (category) { %><span class="badge bg-primary ms-2" style="font-size:0.7em;"><%= category %></span><% } %>
+    </h2>
     <p class="text-muted">Tìm thấy <%= posts.length %> bài viết</p>
     <hr>
 
-    <!-- Thanh tìm kiếm lại -->
+    <!-- Thanh tìm kiếm nâng cao -->
     <div class="row mb-4">
-      <div class="col-md-6 mx-auto">
+      <div class="col-md-8 mx-auto">
         <form action="/search" method="GET">
-          <div class="input-group">
-            <input type="text" name="q" class="form-control" value="<%= query %>" placeholder="Tìm kiếm bài viết...">
-            <button class="btn btn-outline-secondary" type="submit">Tìm</button>
+          <div class="d-flex gap-2">
+            <input type="text" name="q" class="form-control" value="<%= query %>" placeholder="Từ khóa...">
+            <select name="category" class="form-select" style="max-width:180px;">
+              <option value="">Tất cả danh mục</option>
+              <% categories.forEach(cat => { %>
+                <option value="<%= cat %>" <%= category === cat ? 'selected' : '' %>><%= cat %></option>
+              <% }) %>
+            </select>
+            <button class="btn btn-primary" type="submit">Tìm</button>
           </div>
         </form>
       </div>
@@ -61,7 +72,13 @@
                 <h6 class="card-subtitle mb-2 text-muted">
                   <%= post.category %> | <%= post.createdAt.toLocaleDateString('vi-VN') %>
                 </h6>
-                <p class="card-text"><%= post.excerpt || post.content.substring(0, 200) + '...' %></p>
+                <p class="card-text"><%=
+                  (post.excerpt || post.content)
+                    .replace(/<[^>]+>/g, ' ')
+                    .replace(/\s+/g, ' ')
+                    .trim()
+                    .substring(0, 200) + '...'
+                %></p>
                 <a href="/post/<%= post._id %>" class="btn btn-primary">Đọc thêm</a>
               </div>
             </div>
