@@ -315,14 +315,14 @@
     <!-- Masonry CSS -->
     <style>
       .masonry {
-        display: block;
-        margin: -1rem;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
         margin-bottom: 2rem;
       }
       .masonry-item {
-        float: left;
-        width: calc(50% - 2rem);
-        margin: 1rem;
+        width: 100%;
+        margin: 0;
       }
       .masonry-item .card {
         border: 1px solid #e8d9c5;
@@ -404,14 +404,9 @@
         margin-top: auto;
       }
       @media (max-width: 768px) {
-        .masonry-item {
-          width: calc(100% - 2rem);
+        .masonry {
+          grid-template-columns: 1fr;
         }
-      }
-      .masonry::after {
-        content: "";
-        display: table;
-        clear: both;
       }
       /* Bookmark button */
       .card-bookmark-btn {
