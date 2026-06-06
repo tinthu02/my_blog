@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const Post = require('../models/Post');
-const Comment = require('../models/Comment'); // giữ lại nếu cần
 const Subscriber = require('../models/Subscriber');
 
 // POST /api/subscribe
@@ -64,49 +63,6 @@ router.get('/search', async (req, res) => {
   }
 });
 
-// POST /api/posts/:id/comments (giữ nguyên route cũ)
-router.post('/posts/:id/comments', async (req, res) => {
-  try {
-    const { author, content } = req.body;
-    
-    // Validation
-    if (!author || !author.trim()) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Vui lòng nhập tên của bạn' 
-      });
-    }
-    if (!content || !content.trim()) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Vui lòng nhập nội dung bình luận' 
-      });
-    }
-
-    const comment = await Comment.create({
-      postId: req.params.id,
-      author: author.trim(),
-      content: content.trim()
-    });
-
-    // Trả về bình luận vừa tạo (kèm ngày để hiển thị)
-    res.status(201).json({
-      success: true,
-      comment: {
-        _id: comment._id,
-        author: comment.author,
-        content: comment.content,
-        createdAt: comment.createdAt
-      }
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Lỗi server, vui lòng thử lại' 
-    });
-  }
-});
 
 router.get('/posts', async (req, res) => {
   try {

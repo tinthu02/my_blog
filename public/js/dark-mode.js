@@ -2,7 +2,14 @@
   const STORAGE_KEY = 'theme';
 
   function applyTheme(theme) {
+    const root = document.documentElement;
     document.body.classList.toggle('dark', theme === 'dark');
+    if (theme === 'dark') {
+      root.setAttribute('data-bs-theme', 'dark');
+    } else {
+      root.removeAttribute('data-bs-theme');
+    }
+
     const icon = document.getElementById('dark-mode-icon');
     if (icon) {
       icon.src = theme === 'dark' ? '/images/idea (1).png' : '/images/idea.png';

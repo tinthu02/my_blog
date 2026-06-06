@@ -8,45 +8,318 @@
   <meta name="description" content="Kết quả tìm kiếm cho '<%= query %>' trên Blog.">
   <!-- Anti-flash: phải đứng trước mọi CSS -->
   <script>
-    if (localStorage.getItem('theme') === 'dark') {
+    const theme = localStorage.getItem('theme');
+    if (theme === 'dark') {
       document.documentElement.classList.add('dark-early');
+      document.documentElement.setAttribute('data-bs-theme', 'dark');
     }
   </script>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="/css/dark-mode.css">
+  <style>
+    /* ── Gmeow Header ── */
+    .gmeow-nav {
+      background: #f5ede0;
+      border-bottom: 1.5px solid #e8d9c5;
+      padding: 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .gmeow-nav .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      gap: 1rem;
+    }
+    .gmeow-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      flex-shrink: 0;
+    }
+    .gmeow-brand img { height: 50px; width: auto; }
+    .gmeow-brand-text {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #2d2d2d;
+      letter-spacing: -0.5px;
+    }
+    .gmeow-brand-text span { color: #c87941; }
+    .gmeow-links {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .gmeow-links a {
+      color: #2d2d2d;
+      text-decoration: none;
+      font-size: 1rem;
+      font-weight: 600;
+      padding: 6px 16px;
+      border-radius: 20px;
+      transition: background 0.15s, color 0.15s;
+    }
+    .gmeow-links a:hover { background: #ead6bc; color: #2d2d2d; }
+    .gmeow-dark-btn {
+      background: none;
+      border: 1.5px solid #d4b896;
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+      padding: 0;
+      flex-shrink: 0;
+    }
+    .gmeow-dark-btn:hover { background: #ead6bc; border-color: #c87941; }
+
+    /* ── Search Results ── */
+    .search-header {
+      padding: 2rem 0 1.5rem;
+      border-bottom: 1px solid #e8d9c5;
+      margin-bottom: 2rem;
+    }
+    .search-title {
+      font-size: 1.75rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+      color: #2d2d2d;
+    }
+    .search-count {
+      font-size: 0.9rem;
+      color: #9a8a7a;
+    }
+
+    /* ── Search Form ── */
+    .search-form-wrapper {
+      margin-bottom: 2rem;
+    }
+    .search-form-wrapper .form-control,
+    .search-form-wrapper .form-select {
+      border-color: #d4c4b0;
+      background: #fff;
+      color: #2d2d2d;
+    }
+    .search-form-wrapper .form-control:focus,
+    .search-form-wrapper .form-select:focus {
+      border-color: #c87941;
+      box-shadow: 0 0 0 0.2rem rgba(200, 121, 65, 0.15);
+    }
+    .search-form-wrapper .btn-primary {
+      background: #c87941;
+      border-color: #c87941;
+      font-weight: 600;
+    }
+    .search-form-wrapper .btn-primary:hover {
+      background: #a8622e;
+      border-color: #a8622e;
+    }
+
+    /* ── Search Card ── */
+    .search-card {
+      border: 1px solid #e8d9c5;
+      border-radius: 12px;
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      background: #fff;
+    }
+    .search-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(200, 121, 65, 0.12);
+    }
+    .search-card-img {
+      width: 100%;
+      aspect-ratio: 16/9;
+      object-fit: cover;
+    }
+    .search-card-img-placeholder {
+      width: 100%;
+      aspect-ratio: 16/9;
+      background: #f5ede0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      color: #d4b896;
+    }
+    .search-card-body {
+      padding: 1.2rem;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+    .search-card-category {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: #c87941;
+      margin-bottom: 6px;
+    }
+    .search-card-title {
+      font-size: 1rem;
+      font-weight: 700;
+      line-height: 1.4;
+      margin-bottom: 0.5rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .search-card-title a {
+      color: #2d2d2d;
+      text-decoration: none;
+    }
+    .search-card-title a:hover {
+      color: #c87941;
+    }
+    .search-card-excerpt {
+      font-size: 0.84rem;
+      color: #6c757d;
+      line-height: 1.55;
+      flex: 1;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      margin-bottom: 0.75rem;
+    }
+    .search-card-meta {
+      font-size: 0.75rem;
+      color: #b0a090;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .search-card-btn {
+      display: inline-block;
+      margin-top: 0.75rem;
+      padding: 6px 14px;
+      border-radius: 6px;
+      background: #c87941;
+      color: #fff;
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: background 0.15s;
+      text-align: center;
+    }
+    .search-card-btn:hover {
+      background: #a8622e;
+    }
+
+    /* ── Empty State ── */
+    .search-empty {
+      text-align: center;
+      padding: 3rem 0;
+      color: #9a8a7a;
+    }
+    .search-empty-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    /* ── Gmeow Footer ── */
+    .gmeow-footer {
+      background: #f5ede0;
+      color: #2d2d2d;
+      padding: 3rem 0 1.5rem;
+      margin-top: 4rem;
+    }
+    .gmeow-footer-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 0.75rem;
+    }
+    .gmeow-footer-brand img {
+      height: 44px;
+      width: auto;
+    }
+    .gmeow-footer-brand-name {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #2d2d2d;
+      letter-spacing: -0.3px;
+    }
+    .gmeow-footer-brand-name span { color: #c87941; }
+    .gmeow-footer-desc {
+      font-size: 0.9rem;
+      color: #a89888;
+      line-height: 1.6;
+      max-width: 280px;
+    }
+    .gmeow-footer-divider { border-color: #d4c4b0; margin: 2rem 0 1rem; }
+    .gmeow-footer-bottom { font-size: 0.78rem; color: #8a7a6a; }
+
+    /* Dark mode */
+    [data-bs-theme="dark"] .search-header { border-bottom-color: #3a3028; }
+    [data-bs-theme="dark"] .search-title { color: #f0e6d8; }
+    [data-bs-theme="dark"] .search-count { color: #8a7a6a; }
+    [data-bs-theme="dark"] .search-form-wrapper .form-control,
+    [data-bs-theme="dark"] .search-form-wrapper .form-select {
+      border-color: #4a3e32;
+      background: #1e1a16;
+      color: #f0e6d8;
+    }
+    [data-bs-theme="dark"] .search-card { border-color: #3a3028; background: #1a1612; }
+    [data-bs-theme="dark"] .search-card-img-placeholder { background: #2a2018; color: #6a5a4a; }
+    [data-bs-theme="dark"] .search-card-title a { color: #f0e6d8; }
+    [data-bs-theme="dark"] .search-card-excerpt { color: #8a7a6a; }
+    [data-bs-theme="dark"] .gmeow-footer { background: #1e1a16; }
+    [data-bs-theme="dark"] .gmeow-footer-brand-name { color: #f0e6d8; }
+    [data-bs-theme="dark"] .gmeow-footer-desc { color: #7a6a5a; }
+    [data-bs-theme="dark"] .gmeow-footer-divider { border-color: #3d3530; }
+    [data-bs-theme="dark"] .gmeow-footer-bottom { color: #6a5a4a; }
+    [data-bs-theme="dark"] .search-empty { color: #8a7a6a; }
+    mark { background: #fef3c7; color: #92400e; }
+  </style>
 </head>
 <body>
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <!-- Header -->
+  <nav class="gmeow-nav">
     <div class="container">
-      <a class="navbar-brand" href="/">My Blog</a>
-      <div class="collapse navbar-collapse">
-        <ul class="navbar-nav ms-auto">
-          <li class="nav-item"><a class="nav-link" href="/">Trang chủ</a></li>
-          <li class="nav-item"><a class="nav-link" href="/admin">Admin</a></li>
-          <li class="nav-item">
-            <button id="dark-mode-toggle" class="btn btn-sm btn-outline-light ms-2 my-auto" style="padding: 4px 8px;">
-              <img id="dark-mode-icon" src="/images/idea.png" width="20" height="20" alt="Dark mode">
-            </button>
-        </ul>
-      </div>
+      <a class="gmeow-brand" href="/">
+        <img src="/images/logo.png" alt="Gmeow" onerror="this.style.display='none'">
+        <span class="gmeow-brand-text">G<span>meow</span></span>
+      </a>
+      <ul class="gmeow-links">
+        <li><a href="/">Trang chủ</a></li>
+      </ul>
+      <button id="dark-mode-toggle" class="gmeow-dark-btn" aria-label="Chuyển dark mode">
+        <img id="dark-mode-icon" src="/images/idea.png" width="18" height="18" alt="Dark mode">
+      </button>
     </div>
   </nav>
 
-  <div class="container mt-4">
-    <!-- Tiêu đề kết quả -->
-    <h2>Kết quả tìm kiếm
-      <% if (query) { %>"<%= query %>"<% } %>
-      <% if (category) { %><span class="badge bg-primary ms-2" style="font-size:0.7em;"><%= category %></span><% } %>
-    </h2>
-    <p class="text-muted">Tìm thấy <%= posts.length %> bài viết</p>
-    <hr>
+  <!-- Main content -->
+  <div class="container">
+    <div class="search-header">
+      <h1 class="search-title">
+        Kết quả tìm kiếm
+        <% if (query) { %>"<%= query %>"<% } %>
+      </h1>
+      <p class="search-count">Tìm thấy <%= posts.length %> bài viết<% if (category) { %> trong danh mục <strong><%= category %></strong><% } %></p>
+    </div>
 
     <!-- Thanh tìm kiếm nâng cao -->
     <div class="row mb-4">
       <div class="col-md-8 mx-auto">
-        <form action="/search" method="GET">
+        <form action="/search" method="GET" class="search-form-wrapper">
           <div class="d-flex gap-2">
-            <input type="text" name="q" class="form-control" value="<%= query %>" placeholder="Từ khóa...">
+            <input type="text" name="q" class="form-control" value="<%= query %>" placeholder="Từ khóa..." autocomplete="off">
             <select name="category" class="form-select" style="max-width:180px;">
               <option value="">Tất cả danh mục</option>
               <% categories.forEach(cat => { %>
@@ -60,46 +333,61 @@
     </div>
 
     <!-- Danh sách kết quả -->
-    <div class="row">
-      <% if (posts && posts.length > 0) { %>
+    <% if (posts && posts.length > 0) { %>
+      <div class="row g-4 mb-5">
         <% posts.forEach(post => { %>
-          <div class="col-md-6 mb-4">
-            <div class="card h-100">
-              <div class="card-body">
-                <h5 class="card-title">
+          <div class="col-md-6 col-lg-4">
+            <article class="search-card">
+              <% if (post.thumbnail) { %>
+                <img src="<%= post.thumbnail %>" alt="<%= post.title %>" class="search-card-img" loading="lazy" />
+              <% } else { %>
+                <div class="search-card-img-placeholder">✦</div>
+              <% } %>
+              <div class="search-card-body">
+                <div class="search-card-category"><%= post.category %></div>
+                <h2 class="search-card-title">
                   <a href="/post/<%= post._id %>"><%= post.title %></a>
-                </h5>
-                <h6 class="card-subtitle mb-2 text-muted">
-                  <%= post.category %> | <%= post.createdAt.toLocaleDateString('vi-VN') %>
-                </h6>
-                <p class="card-text"><%=
-                  (post.excerpt || post.content)
-                    .replace(/<[^>]+>/g, ' ')
-                    .replace(/\s+/g, ' ')
-                    .trim()
-                    .substring(0, 200) + '...'
-                %></p>
-                <a href="/post/<%= post._id %>" class="btn btn-primary">Đọc thêm</a>
+                </h2>
+                <% const excerpt = (post.excerpt || post.content).replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim(); %>
+                <p class="search-card-excerpt"><%= excerpt.substring(0, 200) %>...</p>
+                <div class="search-card-meta">
+                  <span><%= new Date(post.createdAt).toLocaleDateString('vi-VN') %></span>
+                </div>
+                <a href="/post/<%= post._id %>" class="search-card-btn">Đọc thêm</a>
               </div>
-            </div>
+            </article>
           </div>
         <% }) %>
-      <% } else { %>
-        <div class="col-12">
-          <div class="alert alert-warning">
-            Không tìm thấy bài viết nào khớp với "<%= query %>".
-            <a href="/" class="alert-link">Quay về trang chủ</a>
-          </div>
-        </div>
-      <% } %>
-    </div>
+      </div>
+    <% } else { %>
+      <div class="search-empty">
+        <div class="search-empty-icon">✦</div>
+        <p style="font-size: 1.1rem;">Không tìm thấy bài viết nào khớp với "<%= query %>".</p>
+        <a href="/" class="btn" style="background:#c87941;color:#fff;border-radius:20px;padding:8px 24px;font-weight:600;margin-top:1rem;">Quay về trang chủ</a>
+      </div>
+    <% } %>
   </div>
 
-  <footer class="bg-dark text-light text-center py-3 mt-5">
-    <p>&copy; <%= new Date().getFullYear() %> My Blog. All rights reserved.</p>
+  <!-- Footer -->
+  <footer class="gmeow-footer">
+    <div class="container">
+      <div class="row g-4">
+        <div class="col-md-5">
+          <div class="gmeow-footer-brand">
+            <img src="/images/logo.png" alt="Gmeow" onerror="this.style.display='none'">
+            <span class="gmeow-footer-brand-name">G<span>meow</span></span>
+          </div>
+          <p class="gmeow-footer-desc">Một góc nhỏ để viết, để nghĩ, và để nhớ.</p>
+        </div>
+      </div>
+      <hr class="gmeow-footer-divider">
+      <div class="gmeow-footer-bottom">
+        <span>&copy; <%= new Date().getFullYear() %> Gmeow. All rights reserved.</span>
+      </div>
+    </div>
   </footer>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <%- include('partials/back-to-top') %>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     (function() {
       const query = <%- JSON.stringify(query) %>;
@@ -114,12 +402,12 @@
       }
 
       // Xử lý tiêu đề bài viết
-      document.querySelectorAll('.card-title a').forEach(link => {
+      document.querySelectorAll('.search-card-title a').forEach(link => {
         link.innerHTML = highlightText(link.innerHTML, query);
       });
 
       // Xử lý excerpt
-      document.querySelectorAll('.card-text').forEach(p => {
+      document.querySelectorAll('.search-card-excerpt').forEach(p => {
         p.innerHTML = highlightText(p.innerHTML, query);
       });
     })();
